@@ -263,9 +263,9 @@ class EventLocation(Slugged):
             self.lat = lat
             self.lon = lon
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.clean()
-        super(EventLocation, self).save()
+        super(EventLocation, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.title + " - " + self.room)
