@@ -188,17 +188,16 @@ class ArchiveListView(ListView):
                 defaults={'title' : 'Season ' + str(self.year) + '-' + str(digit_year + 1),
                           'start' : date(digit_year, 7, 31),
                           'end' : date(digit_year + 1, 8, 1)})
-            # if current season, max date is the current date, not whole season
-            if date_now.year == season.start.year or digit_year == season.end.year:
+
+            # filter events from beginning of seasons to today or end of season            
+            if date_now.date() > season.end:
+                date_max = datetime.combine(season.end, time(23, 59, 59))
+            else :
                 date_max = date_now
-                date_max = date_max.replace(hour=23, minute=59, second=59)
-            else:
-                date_max = season.end
-                date_max = datetime.combine(date_max, time(23, 59, 59))
-
             season.start = datetime.combine(season.start, time(0, 0, 0))
-            events = events.filter(start__range=[season.start, date_max]).order_by("-start")
+            events = events.filter(Q(start__range=[season.start, date_max])& Q(end__range=[season.start, date_max])).order_by("-start")
 
+            # filter by month
             if self.month is not None:
                 digit_month = int(self.month)
                 first_day_in_month = date(digit_year, digit_month, 1)
