@@ -23,6 +23,8 @@ from mezzanine.utils.models import AdminThumbMixin, upload_to
 from mezzanine.utils.sites import current_site_id
 from mezzanine.utils.models import base_concrete_model, get_user_model_name
 
+from organization.core.models import TitledSlugged
+
 
 ALIGNMENT_CHOICES = (('left', _('left')), ('center', _('center')), ('right', _('right')))
 
@@ -215,7 +217,7 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
             return 'l j F'
 
 
-class EventLocation(Slugged):
+class EventLocation(TitledSlugged):
     """
     A Event Location.
     """
