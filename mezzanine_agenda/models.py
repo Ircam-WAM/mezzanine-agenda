@@ -17,7 +17,7 @@ from copy import deepcopy
 
 from mezzanine.conf import settings
 from mezzanine.core.fields import FileField, RichTextField, OrderField
-from mezzanine.core.models import Displayable, Ownable, RichText, Slugged
+from mezzanine.core.models import Displayable, Ownable, RichText, Slugged, SiteRelated
 from mezzanine.generic.fields import CommentsField, RatingField
 from mezzanine.utils.models import AdminThumbMixin, upload_to
 from mezzanine.utils.sites import current_site_id
@@ -292,7 +292,7 @@ class EventPrice(models.Model):
         return str(self.value)
 
 
-class EventCategory(models.Model):
+class EventCategory(SiteRelated):
 
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
