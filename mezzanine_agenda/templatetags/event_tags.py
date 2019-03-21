@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 
 from django import template
@@ -19,6 +21,7 @@ from mezzanine.pages.models import Page
 from mezzanine.template import Library
 from mezzanine.utils.models import get_user_model
 from mezzanine.utils.sites import current_site_id
+from mezzanine_agenda.utils import sign_url
 
 import pytz
 
@@ -223,7 +226,16 @@ def google_static_map(obj, width, height, zoom):
         scale = 2
     else:
         scale = 1
-    return mark_safe("<img src='//maps.googleapis.com/maps/api/staticmap?size={width}x{height}&scale={scale}&format=png&markers={marker}&sensor=false&zoom={zoom}' width='{width}' height='{height}' />".format(**locals()))
+    
+    url = "https://maps.googleapis.com/maps/api/staticmap?size={width}x{height}&scale={scale}&format=png&markers={marker}&sensor=false&zoom={zoom}"
+    if hasattr(settings, "GOOGLE_API_KEY"):
+        key = settings.GOOGLE_API_KEY
+        url += "&key={key}"
+    url = url.format(**locals()).encode('utf-8')
+    if hasattr(settings, "GOOGLE_STATIC_MAPS_API_SECRET"):
+        url = sign_url(input_url=url, secret=settings.GOOGLE_STATIC_MAPS_API_SECRET)
+
+    return mark_safe("<img src='{url}' width='{width}' height='{height}' />".format(**locals()))
 
 
 @register.simple_tag(takes_context=True)
@@ -315,6 +327,9 @@ def same_day_in_periods(periods):
     return is_same_day
 
 @register.filter
-def tag_is_excluded(tag):
-    if hasattr(tag, 'slug'):
-        return tag.slug in settings.EVENT_EXCLUDE_TAG_LIST
+def tag_is_excluded(tag_id):
+    return tag_id in settings.EVENT_EXCLUDE_TAG_LIST
+
+@register.filter
+def get_tag(tag_id):
+    return Keyword.objects.get(id=tag_id)

@@ -17,11 +17,13 @@ from copy import deepcopy
 
 from mezzanine.conf import settings
 from mezzanine.core.fields import FileField, RichTextField, OrderField
-from mezzanine.core.models import Displayable, Ownable, RichText, Slugged
+from mezzanine.core.models import Displayable, Ownable, RichText, Slugged, SiteRelated
 from mezzanine.generic.fields import CommentsField, RatingField
 from mezzanine.utils.models import AdminThumbMixin, upload_to
 from mezzanine.utils.sites import current_site_id
 from mezzanine.utils.models import base_concrete_model, get_user_model_name
+
+from organization.core.models import TitledSlugged
 
 
 ALIGNMENT_CHOICES = (('left', _('left')), ('center', _('center')), ('right', _('right')))
@@ -79,8 +81,8 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
         if self.end and self.start > self.end:
             raise ValidationError("Start must be sooner than end.")
 
-    def save(self):
-        super(Event, self).save()
+    def save(self, *args, **kwargs):
+        super(Event, self).save(*args, **kwargs)
         # take some values from parent
         if not self.parent is None:
             self.title = self.parent.title
@@ -124,8 +126,10 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
                     link.save()
                     link.event = self
                     link.save()
-        super(Event, self).save()
+        super(Event, self).save(*args, **kwargs)
 
+    def update(self, *args, **kwargs):
+        super(Event, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         """
@@ -213,7 +217,7 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
             return 'l j F'
 
 
-class EventLocation(Slugged):
+class EventLocation(TitledSlugged):
     """
     A Event Location.
     """
@@ -250,20 +254,20 @@ class EventLocation(Slugged):
             self.mappable_location = self.address.replace("\n"," ").replace('\r', ' ') + ", " + self.postal_code + " " + self.city
 
         if self.mappable_location and not (self.lat and self.lon): #location should always override lat/long if set
-            g = GoogleMaps(domain=settings.EVENT_GOOGLE_MAPS_DOMAIN)
+            g = GoogleMaps(api_key=settings.GOOGLE_API_KEY,domain=settings.EVENT_GOOGLE_MAPS_DOMAIN)
             try:
                 mappable_location, (lat, lon) = g.geocode(self.mappable_location)
             except GeocoderQueryError as e:
-                raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e.message))
+                raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e))
             except ValueError as e:
                 raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e.message))
             self.mappable_location = mappable_location
             self.lat = lat
             self.lon = lon
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.clean()
-        super(EventLocation, self).save()
+        super(EventLocation, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.title + " - " + self.room)
@@ -288,7 +292,7 @@ class EventPrice(models.Model):
         return str(self.value)
 
 
-class EventCategory(models.Model):
+class EventCategory(SiteRelated):
 
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
