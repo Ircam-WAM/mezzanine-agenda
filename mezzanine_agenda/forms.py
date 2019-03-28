@@ -97,6 +97,7 @@ class EventCalendarForm(forms.Form):
             widget=CustomRadioSelect,
             choices=events_day,
         )
+        
 
 class CustomCheckboxChoiceInput(CheckboxChoiceInput):
 

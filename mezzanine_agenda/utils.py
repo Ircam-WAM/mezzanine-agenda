@@ -56,7 +56,7 @@ def get_events_list_days_form(locations=[]):
             disabled = 'disabled'
         if day_v.dayofweek == 5 or  day_v.dayofweek == 6:
             weekend_class = 'calendar__weekend'
-        label = mark_safe("<span class='"+weekend_class+"'>"+ str(_(day_v.weekday_name[:2].upper())) +"</span> " + str(day_v.day))
+        label = str(day_v.day)
         events_by_day.append((day_k, {'label': label, 'disabled': disabled}))
 
     
