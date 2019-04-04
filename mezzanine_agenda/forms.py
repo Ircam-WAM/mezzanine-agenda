@@ -27,6 +27,7 @@ class CustomRadioChoiceInput(RadioChoiceInput):
         if choice.__class__.__name__ == 'tuple':
             self.choice_value = force_text(choice[0])
             self.choice_label = force_text(choice[1]['label'])
+            self.attrs['disabled'] = choice[1]['disabled']
         self.index = index
         if 'id' in self.attrs:
             self.attrs['id'] += "_%d" % self.index
@@ -35,47 +36,6 @@ class CustomRadioChoiceInput(RadioChoiceInput):
 class CustomRadioFieldRenderer(RadioFieldRenderer):
 
     choice_input_class = CustomRadioChoiceInput
-
-    def render(self):
-        """
-        Outputs a <ul> for this set of choice fields.
-        If an id was given to the field, it is applied to the <ul> (each
-        item in the list will get an id of `$id_$i`).
-        """
-        id_ = self.attrs.get('id')
-        output = []
-        for i, choice in enumerate(self.choices):
-            choice_value, choice_label = choice
-            if isinstance(choice_label, (tuple, list)):
-                attrs_plus = self.attrs.copy()
-                if id_:
-                    attrs_plus['id'] += '_{}'.format(i)
-                sub_ul_renderer = self.__class__(
-                    name=self.name,
-                    value=self.value,
-                    attrs=attrs_plus,
-                    choices=choice_label,
-                )
-                sub_ul_renderer.choice_input_class = self.choice_input_class
-                output.append(format_html(self.inner_html, choice_value=choice_value,
-                                          sub_widgets=sub_ul_renderer.render()))
-            else:
-                if "label" in choice_label.keys():
-                    if choice_label['disabled']:
-                        self.attrs['disabled'] = choice_label['disabled']
-                    else :
-                        if 'disabled' in self.attrs:
-                            del self.attrs['disabled']
-                    w = self.choice_input_class(self.name, self.value,
-                                                self.attrs.copy(), choice, i)
-                    output.append(format_html(self.inner_html,
-                                              choice_value=force_text(w), sub_widgets=''))
-
-        output.insert(0, "<li>" + str(_(datetime.strptime(self.choices[0][0], '%Y-%m-%d').strftime("%B"))) + "</li>")
-        output.insert(len(output) ,  "<li>" + str(_(datetime.strptime(self.choices[len(self.choices) - 1][0], '%Y-%m-%d').strftime("%B"))) + "</li>")
-        return format_html(self.outer_html,
-                           id_attr=format_html(' id="{}"', id_) if id_ else '',
-                           content=mark_safe('\n'.join(output)))
 
 
 class CustomRadioSelect(RendererMixin, Select):
