@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from future.builtins import str
 
+from django.utils import timezone
 from django.db import models
 from django.db.models import Q
 from django.contrib.sites.models import Site
@@ -216,6 +217,37 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
         else:
             return 'l j F'
 
+    @property
+    def has_vel(self):
+        return self.links.filter(link_type__slug='vel').count()
+
+    @property
+    def vel(self):
+        return self.links.filter(link_type__slug='vel').first().url
+
+    @property
+    def has_shop(self):
+        return self.external_id and self.shop
+
+    @property
+    def is_archived(self):
+        return self.end and self.end < timezone.now()
+
+    @property
+    def reserve_button(self):
+        button = {}
+        if not (self.is_archived or self.is_full):
+            if self.prices.filter(value=0.0):
+                button['url'] = self.get_absolute_url()
+                button['label'] = _('Free entry')
+            elif self.has_shop:
+                button['url'] = reverse("event_booking", kwargs={'slug': self.slug})
+                button['label'] = _('Reserve')
+            elif self.has_vel:
+                button['url'] = self.vel
+                button['label'] = _('Reserve')
+        return button
+            
 
 class EventLocation(TitledSlugged):
     """
