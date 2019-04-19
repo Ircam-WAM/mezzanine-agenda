@@ -234,10 +234,14 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
         return self.end and self.end < timezone.now()
 
     @property
+    def is_free(self):
+        return self.prices.filter(value=0.0).count()
+
+    @property
     def reserve_button(self):
         button = {}
         if not (self.is_archived or self.is_full):
-            if self.prices.filter(value=0.0):
+            if self.is_free:
                 button['url'] = self.get_absolute_url()
                 button['label'] = _('Free entry')
             elif self.has_shop:
