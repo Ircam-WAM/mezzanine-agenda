@@ -244,12 +244,15 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
             if self.is_free:
                 button['url'] = self.get_absolute_url()
                 button['label'] = _('Free entry')
+                button['target'] = "_self"
             elif self.has_shop:
                 button['url'] = reverse("event_booking", kwargs={'slug': self.slug})
                 button['label'] = _('Reserve')
+                button['target'] = "_self"
             elif self.has_vel:
                 button['url'] = self.vel
                 button['label'] = _('Reserve')
+                button['target'] = "_blank"
         return button
             
 
