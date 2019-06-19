@@ -18,7 +18,7 @@ from copy import deepcopy
 
 from mezzanine.conf import settings
 from mezzanine.core.fields import FileField, RichTextField, OrderField
-from mezzanine.core.models import Displayable, Ownable, RichText, Slugged, SiteRelated
+from mezzanine.core.models import Displayable, TeamOwnable, RichText, Slugged, SiteRelated
 from mezzanine.generic.fields import CommentsField, RatingField
 from mezzanine.utils.models import AdminThumbMixin, upload_to
 from mezzanine.utils.sites import current_site_id
@@ -38,7 +38,7 @@ class SubTitle(models.Model):
         abstract = True
 
 
-class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
+class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
     """
     An event.
     """
@@ -72,6 +72,7 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
         ordering = ("rank", "start",)
+        permissions = TeamOwnable.Meta.permissions
 
     def clean(self):
         """
