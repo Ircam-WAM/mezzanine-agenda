@@ -18,7 +18,7 @@ class EventAdminBase(admin.ModelAdmin):
     model = Event
 
 
-class EventAdmin(DisplayableAdmin, TeamOwnableAdmin):
+class EventAdmin(TeamOwnableAdmin, DisplayableAdmin):
     """
     Admin class for events.
     """
