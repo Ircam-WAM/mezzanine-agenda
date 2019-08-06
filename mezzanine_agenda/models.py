@@ -230,6 +230,7 @@ class EventLocation(Slugged):
     description = RichTextField(_('description'), blank=True)
     link = models.URLField(max_length=512, blank=True, null=True)
     external_id = models.IntegerField(_('external_id'), null=True, blank=True)
+    place_id = models.TextField(help_text='Google Place ID (unique identifier)')  # TODO: calculate other props from it?
 
     class Meta:
         verbose_name = _("Event Location")
@@ -269,7 +270,10 @@ class EventLocation(Slugged):
         super(EventLocation, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.title + " - " + self.room)
+        if self.room:
+            return str(self.title + " - " + self.room)
+        else:
+            return str(self.title)
 
     @models.permalink
     def get_absolute_url(self):
