@@ -230,7 +230,7 @@ class EventLocation(Slugged):
     description = RichTextField(_('description'), blank=True)
     link = models.URLField(max_length=512, blank=True, null=True)
     external_id = models.IntegerField(_('external_id'), null=True, blank=True)
-    place_id = models.TextField(help_text='Google Place ID (unique identifier)')  # TODO: calculate other props from it?
+    place_id = models.TextField(help_text='Google Place ID (unique identifier)', blank=True, null=True)  # TODO: calculate other props from it?
 
     class Meta:
         verbose_name = _("Event Location")
@@ -256,7 +256,11 @@ class EventLocation(Slugged):
 
             g = GoogleMaps(api_key=settings.GOOGLE_API_KEY, domain=settings.EVENT_GOOGLE_MAPS_DOMAIN)
             try:
-                mappable_location, (lat, lon) = g.geocode(self.mappable_location)
+                res = g.geocode(self.mappable_location)
+                mappable_location = res.address
+                lat = res.latitude
+                lon = res.longitude
+                place_id = res.raw['place_id']
             except GeocoderQueryError as e:
                 raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e))
             except ValueError as e:
@@ -264,6 +268,7 @@ class EventLocation(Slugged):
             self.mappable_location = mappable_location
             self.lat = lat
             self.lon = lon
+            self.place_id = place_id
 
     def save(self, *args, **kwargs):
         self.clean()
