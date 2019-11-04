@@ -52,7 +52,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
 
     location = models.ForeignKey("EventLocation", blank=True, null=True, on_delete=models.SET_NULL)
     facebook_event = models.BigIntegerField(_('Facebook ID'), blank=True, null=True)
-    shop = models.ForeignKey('EventShop', verbose_name=_('shop'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
+    shop = models.ForeignKey('ExternalShop', verbose_name=_('shop'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
     external_id = models.IntegerField(_('External ID'), null=True, blank=True)
     is_full = models.BooleanField(verbose_name=_("Is Full"), default=False)
 
@@ -349,17 +349,18 @@ class EventCategory(SiteRelated):
         return slugify(self.__unicode__())
 
 
-class EventShop(models.Model):
-
+class ExternalShop(models.Model):
+    
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
+    content = RichTextField(_("Content"), blank=True, null=True)
     item_url = models.CharField(_('Item URL'), max_length=255)
     pass_url = models.CharField(_('Pass URL'), max_length=255, blank=True, null=True)
     confirmation_url = models.CharField(_('Confirmation URL'), max_length=255, blank=True, null=True)
 
     class Meta:
-        verbose_name = _("Event shop")
-        verbose_name_plural = _("Event shops")
+        verbose_name = _("External shop")
+        verbose_name_plural = _("External shops")
 
     def __str__(self):
         return self.name
