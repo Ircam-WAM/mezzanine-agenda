@@ -9,8 +9,7 @@ from organization.core.admin import TeamOwnableAdmin
 from mezzanine_agenda.models import Event, EventLocation, EventPrice, EventCategory, ExternalShop, Season
 from mezzanine_agenda.forms import EventAdminForm
 from mezzanine.conf import settings
-from mezzanine.core.admin import DisplayableAdmin, OwnableAdmin
-
+from mezzanine.core.admin import DisplayableAdmin, OwnableAdmin, BaseTranslationModelAdmin
 
 
 class EventAdminBase(admin.ModelAdmin):
@@ -64,9 +63,15 @@ class SeasonAdminBase(admin.ModelAdmin):
     model = Season
 
 
+class ExternalShopAdmin(BaseTranslationModelAdmin):
+
+    model = ExternalShop
+
+
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(EventLocation, EventLocationAdmin)
 admin.site.register(EventPrice)
 admin.site.register(EventCategory)
-admin.site.register(ExternalShop)
+admin.site.register(ExternalShop, ExternalShopAdmin)
 admin.site.register(Season, SeasonAdminBase)

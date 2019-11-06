@@ -353,6 +353,7 @@ class ExternalShop(models.Model):
     
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
+    title = models.CharField(_('title'), max_length=512, help_text="Used for display", null=True, blank=True)
     content = RichTextField(_("Content"), blank=True, null=True)
     item_url = models.CharField(_('Item URL'), max_length=255)
     pass_url = models.CharField(_('Pass URL'), max_length=255, blank=True, null=True)
