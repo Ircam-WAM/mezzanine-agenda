@@ -15,7 +15,7 @@ from icalendar import Calendar
 from dal import autocomplete
 
 from mezzanine_agenda import __version__
-from mezzanine_agenda.models import Event, EventLocation, EventShop, Season, EventPrice
+from mezzanine_agenda.models import Event, EventLocation, ExternalShop, Season, EventPrice
 from mezzanine_agenda.feeds import EventsRSS, EventsAtom
 from mezzanine.conf import settings
 from mezzanine.generic.models import Keyword
@@ -394,7 +394,7 @@ class EventBookingGlobalConfirmationView(TemplateView):
 
 class EventBookingShopConfirmationView(DetailView):
 
-    model = EventShop
+    model = ExternalShop
     template_name = "agenda/event_booking_confirmation.html"
 
     def get_context_data(self, **kwargs):
