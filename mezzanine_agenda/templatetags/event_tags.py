@@ -206,7 +206,9 @@ def google_nav_url(obj):
         location = quote(obj.mappable_location)
     else:
         return ''
-    return "https://{}/maps?daddr={}".format(settings.EVENT_GOOGLE_MAPS_DOMAIN, location)
+    return "https://{}/maps/search/?api=1&query={}&key={}".format(settings.EVENT_GOOGLE_MAPS_DOMAIN, \
+                                                                        location, \
+                                                                        settings.GOOGLE_API_KEY)
 
 
 @register.simple_tag
