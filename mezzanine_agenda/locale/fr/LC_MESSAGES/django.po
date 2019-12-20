@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-17 15:34+0000\n"
+"POT-Creation-Date: 2019-12-16 10:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "Controls the ordering and grouping of the admin menu."
 msgstr ""
 
-#: defaults.py:25
+#: defaults.py:25 models.py:357
 msgid "Content"
 msgstr ""
 
@@ -180,107 +180,111 @@ msgstr ""
 msgid "Events"
 msgstr ""
 
-#: models.py:242
+#: models.py:247
 msgid "Free entry"
 msgstr "Entrée libre"
 
-#: models.py:245 models.py:248
+#: models.py:251 models.py:255
 msgid "Reserve"
 msgstr "Réserver"
 
-#: models.py:258
+#: models.py:266
 msgid "postal code"
 msgstr ""
 
-#: models.py:259
+#: models.py:267
 msgid "city"
 msgstr ""
 
-#: models.py:263
+#: models.py:271
 msgid "room"
 msgstr ""
 
-#: models.py:264 models.py:330 models.py:347
+#: models.py:272 models.py:338 models.py:355
 msgid "description"
 msgstr ""
 
-#: models.py:266
+#: models.py:274
 msgid "external_id"
 msgstr ""
 
-#: models.py:269
+#: models.py:277
 msgid "Event Location"
 msgstr "Lieu"
 
-#: models.py:270
+#: models.py:278
 msgid "Event Locations"
 msgstr "Lieux"
 
-#: models.py:315
+#: models.py:323
 msgid "value"
 msgstr ""
 
-#: models.py:316
+#: models.py:324
 msgid "Unit"
 msgstr ""
 
-#: models.py:319
+#: models.py:327
 msgid "Event price"
 msgstr "Prix"
 
-#: models.py:320
+#: models.py:328
 msgid "Event prices"
 msgstr "Prix"
 
-#: models.py:329 models.py:346 models.py:362
+#: models.py:337 models.py:354 models.py:372
 msgid "name"
 msgstr ""
 
-#: models.py:333
+#: models.py:341
 msgid "Event category"
 msgstr ""
 
-#: models.py:334
+#: models.py:342
 msgid "Event categories"
 msgstr ""
 
-#: models.py:348
+#: models.py:356
+msgid "title"
+msgstr ""
+
+#: models.py:358
 msgid "Item URL"
 msgstr ""
 
-#: models.py:349
+#: models.py:359
 msgid "Pass URL"
 msgstr ""
 
-#: models.py:350
+#: models.py:360
 msgid "Confirmation URL"
 msgstr ""
 
-#: models.py:353
-msgid "Event shop"
-msgstr ""
-
-#: models.py:354
-msgid "Event shops"
-msgstr ""
-
 #: models.py:363
-msgid "start"
+msgid "External shop"
 msgstr ""
 
 #: models.py:364
+msgid "External shops"
+msgstr ""
+
+#: models.py:373
+msgid "start"
+msgstr ""
+
+#: models.py:374
 msgid "end"
 msgstr ""
 
-#: models.py:376
+#: models.py:386
 msgid "This season already exists."
 msgstr ""
 
-#: models.py:380
+#: models.py:390
 msgid "Season"
 msgstr ""
 
-#: models.py:381
+#: models.py:391
 msgid "Seasons"
 msgstr ""
 

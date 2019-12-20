@@ -145,6 +145,7 @@ class EventListView(ListView):
         context.update({"year": self.year, "month": self.month, "day": self.day, "week": self.week,
                "tag": self.tag, "location": self.location, "author": self.author, 'day_date': self.day_date, 'is_archive' : False})
 
+        context['event_tag_highlighted'] = getattr(settings, 'EVENT_TAG_HIGHLIGHTED', 0)
         context['filter_form'] = EventFilterForm(initial=self.form_initial)
         if settings.PAST_EVENTS:
             context['past_events'] = Event.objects.filter(end__lt=datetime.now()).order_by("-start")
