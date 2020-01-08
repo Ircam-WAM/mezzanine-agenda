@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from future.builtins import str
 
+from django.utils import timezone
 from django.db import models
 from django.db.models import Q
 from django.contrib.sites.models import Site
@@ -17,7 +18,7 @@ from copy import deepcopy
 
 from mezzanine.conf import settings
 from mezzanine.core.fields import FileField, RichTextField, OrderField
-from mezzanine.core.models import Displayable, Ownable, RichText, Slugged, SiteRelated
+from mezzanine.core.models import Displayable, TeamOwnable, RichText, Slugged, SiteRelated
 from mezzanine.generic.fields import CommentsField, RatingField
 from mezzanine.utils.models import AdminThumbMixin, upload_to
 from mezzanine.utils.sites import current_site_id
@@ -37,7 +38,7 @@ class SubTitle(models.Model):
         abstract = True
 
 
-class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
+class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
     """
     An event.
     """
@@ -51,7 +52,7 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
 
     location = models.ForeignKey("EventLocation", blank=True, null=True, on_delete=models.SET_NULL)
     facebook_event = models.BigIntegerField(_('Facebook ID'), blank=True, null=True)
-    shop = models.ForeignKey('EventShop', verbose_name=_('shop'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
+    shop = models.ForeignKey('ExternalShop', verbose_name=_('shop'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
     external_id = models.IntegerField(_('External ID'), null=True, blank=True)
     is_full = models.BooleanField(verbose_name=_("Is Full"), default=False)
 
@@ -71,6 +72,7 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
         ordering = ("rank", "start",)
+        permissions = TeamOwnable.Meta.permissions
 
     def clean(self):
         """
@@ -216,6 +218,44 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
         else:
             return 'l j F'
 
+    @property
+    def has_vel(self):
+        return self.links.filter(link_type__slug='vel').count()
+
+    @property
+    def vel(self):
+        return self.links.filter(link_type__slug='vel').first().url
+
+    @property
+    def has_shop(self):
+        return self.external_id and self.shop
+
+    @property
+    def is_archived(self):
+        return self.end and self.end < timezone.now()
+
+    @property
+    def is_free(self):
+        return self.prices.filter(value=0.0).count()
+
+    @property
+    def reserve_button(self):
+        button = {}
+        if not (self.is_archived or self.is_full):
+            if self.is_free:
+                button['url'] = self.get_absolute_url()
+                button['label'] = _('Free entry')
+                button['target'] = "_self"
+            elif self.has_shop:
+                button['url'] = reverse("event_booking", kwargs={'slug': self.slug})
+                button['label'] = _('Reserve')
+                button['target'] = "_self"
+            elif self.has_vel:
+                button['url'] = self.vel
+                button['label'] = _('Reserve')
+                button['target'] = "_blank"
+        return button
+            
 
 class EventLocation(TitledSlugged):
     """
@@ -225,7 +265,7 @@ class EventLocation(TitledSlugged):
     address = models.TextField()
     postal_code = models.CharField(_('postal code'), max_length=16)
     city = models.CharField(_('city'), max_length=255)
-    mappable_location = models.CharField(max_length=128, blank=True, help_text="This address will be used to calculate latitude and longitude. Leave blank and set Latitude and Longitude to specify the location yourself, or leave all three blank to auto-fill from the Location field.")
+    mappable_location = models.CharField(max_length=1024, blank=True, help_text="This address will be used to calculate latitude and longitude. Leave blank and set Latitude and Longitude to specify the location yourself, or leave all three blank to auto-fill from the Location field.")
     lat = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True, verbose_name="Latitude", help_text="Calculated automatically if mappable location is set.")
     lon = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True, verbose_name="Longitude", help_text="Calculated automatically if mappable location is set.")
     room = models.CharField(_('room'), max_length=512, blank=True, null=True)
@@ -264,6 +304,9 @@ class EventLocation(TitledSlugged):
             self.mappable_location = mappable_location
             self.lat = lat
             self.lon = lon
+            print("self.lat", self.lat)
+            print("self.lon", self.lon)
+            print("self.mappable_location", self.mappable_location)
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -309,17 +352,19 @@ class EventCategory(SiteRelated):
         return slugify(self.__unicode__())
 
 
-class EventShop(models.Model):
-
+class ExternalShop(models.Model):
+    
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
+    title = models.CharField(_('title'), max_length=512, help_text="Used for display", null=True, blank=True)
+    content = RichTextField(_("Content"), blank=True, null=True)
     item_url = models.CharField(_('Item URL'), max_length=255)
     pass_url = models.CharField(_('Pass URL'), max_length=255, blank=True, null=True)
     confirmation_url = models.CharField(_('Confirmation URL'), max_length=255, blank=True, null=True)
 
     class Meta:
-        verbose_name = _("Event shop")
-        verbose_name_plural = _("Event shops")
+        verbose_name = _("External shop")
+        verbose_name_plural = _("External shops")
 
     def __str__(self):
         return self.name

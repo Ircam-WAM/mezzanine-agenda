@@ -5,12 +5,11 @@ from mezzanine.conf import settings
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-
-from mezzanine_agenda.models import Event, EventLocation, EventPrice, EventCategory, EventShop, Season
+from organization.core.admin import TeamOwnableAdmin
+from mezzanine_agenda.models import Event, EventLocation, EventPrice, EventCategory, ExternalShop, Season
 from mezzanine_agenda.forms import EventAdminForm
 from mezzanine.conf import settings
-from mezzanine.core.admin import DisplayableAdmin, OwnableAdmin
-
+from mezzanine.core.admin import DisplayableAdmin, OwnableAdmin, BaseTranslationModelAdmin
 
 
 class EventAdminBase(admin.ModelAdmin):
@@ -18,7 +17,7 @@ class EventAdminBase(admin.ModelAdmin):
     model = Event
 
 
-class EventAdmin(DisplayableAdmin, OwnableAdmin):
+class EventAdmin(TeamOwnableAdmin, DisplayableAdmin):
     """
     Admin class for events.
     """
@@ -64,9 +63,15 @@ class SeasonAdminBase(admin.ModelAdmin):
     model = Season
 
 
+class ExternalShopAdmin(BaseTranslationModelAdmin):
+
+    model = ExternalShop
+
+
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(EventLocation, EventLocationAdmin)
 admin.site.register(EventPrice)
 admin.site.register(EventCategory)
-admin.site.register(EventShop)
+admin.site.register(ExternalShop, ExternalShopAdmin)
 admin.site.register(Season, SeasonAdminBase)

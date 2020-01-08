@@ -17,3 +17,9 @@ class EventLocationTranslationOptions(TranslationOptions):
 class EventCategoryTranslationOptions(TranslationOptions):
 
     fields = ('name', 'description')
+
+
+@register(ExternalShop)
+class ExternalShopTranslationOptions(TranslationOptions):
+
+    fields = ('title',)

@@ -18,7 +18,7 @@ from icalendar import Calendar
 from dal import autocomplete
 
 from mezzanine_agenda import __version__
-from mezzanine_agenda.models import Event, EventLocation, EventShop, Season, EventPrice
+from mezzanine_agenda.models import Event, EventLocation, ExternalShop, Season, EventPrice
 from mezzanine_agenda.feeds import EventsRSS, EventsAtom
 from mezzanine.conf import settings
 from mezzanine.generic.models import Keyword
@@ -165,6 +165,7 @@ class EventListView(ListView):
         context.update({"year": self.year, "month": self.month, "day": self.day, "week": self.week,
                "tag": self.tag, "location": self.location, "author": self.author, 'day_date': self.day_date, 'is_archive' : False})
 
+        context['event_tag_highlighted'] = getattr(settings, 'EVENT_TAG_HIGHLIGHTED', 0)
         context['filter_form'] = EventFilterForm(initial=self.form_initial)
         if settings.PAST_EVENTS:
             context['past_events'] = Event.objects.filter(end__lt=datetime.now()).order_by("-start")
@@ -427,7 +428,7 @@ class EventBookingGlobalConfirmationView(TemplateView):
 
 class EventBookingShopConfirmationView(DetailView):
 
-    model = EventShop
+    model = ExternalShop
     template_name = "agenda/event_booking_confirmation.html"
 
     def get_context_data(self, **kwargs):

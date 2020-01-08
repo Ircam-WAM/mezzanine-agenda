@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-20 10:30+0000\n"
+"POT-Creation-Date: 2019-12-16 10:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "Controls the ordering and grouping of the admin menu."
 msgstr ""
 
-#: defaults.py:25
+#: defaults.py:25 models.py:357
 msgid "Content"
 msgstr ""
 
@@ -86,197 +86,205 @@ msgstr ""
 msgid "Display or not past events."
 msgstr ""
 
-#: forms.py:181
-msgid "Filter Events"
-msgstr "Filtrer par"
-
-#: models.py:27
+#: models.py:30
 msgid "left"
 msgstr ""
 
-#: models.py:27
+#: models.py:30
 msgid "center"
 msgstr ""
 
-#: models.py:27
+#: models.py:30
 msgid "right"
 msgstr ""
 
-#: models.py:32
+#: models.py:35
 msgid "sub title"
 msgstr ""
 
-#: models.py:43
+#: models.py:46
 msgid "parent"
 msgstr ""
 
-#: models.py:44
+#: models.py:47
 msgid "category"
 msgstr ""
 
-#: models.py:46
+#: models.py:49
 msgid "Start"
 msgstr ""
 
-#: models.py:47
+#: models.py:50
 msgid "End"
 msgstr ""
 
-#: models.py:48
+#: models.py:51
 msgid "Date text"
 msgstr ""
 
-#: models.py:51
+#: models.py:54
 msgid "Facebook ID"
 msgstr ""
 
-#: models.py:52
+#: models.py:55
 msgid "shop"
 msgstr ""
 
-#: models.py:53
+#: models.py:56
 msgid "External ID"
 msgstr ""
 
-#: models.py:54
+#: models.py:57
 msgid "Is Full"
 msgstr ""
 
-#: models.py:56
+#: models.py:59
 msgid "brochure"
 msgstr ""
 
-#: models.py:57
+#: models.py:60
 msgid "prices"
 msgstr ""
 
-#: models.py:58
+#: models.py:61
 msgid "Price comments"
 msgstr ""
 
-#: models.py:59
+#: models.py:62
 msgid "mentions"
 msgstr ""
 
-#: models.py:61
+#: models.py:64
 msgid "Allow comments"
 msgstr ""
 
-#: models.py:62 templates/agenda/event_detail.html:45
+#: models.py:65 templates/agenda/event_detail.html:45
 #: templates/agenda/event_list.html:134
 msgid "Comments"
 msgstr ""
 
-#: models.py:63
+#: models.py:66
 msgid "Rating"
 msgstr ""
 
-#: models.py:64
+#: models.py:67
 msgid "rank"
 msgstr ""
 
-#: models.py:69
+#: models.py:72
 msgid "Event"
 msgstr ""
 
-#: models.py:70 templates/agenda/event_list.html:4
+#: models.py:73 templates/agenda/event_list.html:4
 #: templates/agenda/event_list.html:22
 msgid "Events"
 msgstr ""
 
-#: models.py:222
+#: models.py:247
+msgid "Free entry"
+msgstr "Entrée libre"
+
+#: models.py:251 models.py:255
+msgid "Reserve"
+msgstr "Réserver"
+
+#: models.py:266
 msgid "postal code"
 msgstr ""
 
-#: models.py:223
+#: models.py:267
 msgid "city"
 msgstr ""
 
-#: models.py:227
+#: models.py:271
 msgid "room"
 msgstr ""
 
-#: models.py:228 models.py:294 models.py:311
+#: models.py:272 models.py:338 models.py:355
 msgid "description"
 msgstr ""
 
-#: models.py:230
+#: models.py:274
 msgid "external_id"
 msgstr ""
 
-#: models.py:233
+#: models.py:277
 msgid "Event Location"
-msgstr ""
+msgstr "Lieu"
 
-#: models.py:234
+#: models.py:278
 msgid "Event Locations"
-msgstr ""
+msgstr "Lieux"
 
-#: models.py:279
+#: models.py:323
 msgid "value"
 msgstr ""
 
-#: models.py:280
+#: models.py:324
 msgid "Unit"
 msgstr ""
 
-#: models.py:283
+#: models.py:327
 msgid "Event price"
-msgstr ""
+msgstr "Prix"
 
-#: models.py:284
+#: models.py:328
 msgid "Event prices"
-msgstr ""
+msgstr "Prix"
 
-#: models.py:293 models.py:310 models.py:326
+#: models.py:337 models.py:354 models.py:372
 msgid "name"
 msgstr ""
 
-#: models.py:297
+#: models.py:341
 msgid "Event category"
 msgstr ""
 
-#: models.py:298
+#: models.py:342
 msgid "Event categories"
 msgstr ""
 
-#: models.py:312
+#: models.py:356
+msgid "title"
+msgstr ""
+
+#: models.py:358
 msgid "Item URL"
 msgstr ""
 
-#: models.py:313
+#: models.py:359
 msgid "Pass URL"
 msgstr ""
 
-#: models.py:314
+#: models.py:360
 msgid "Confirmation URL"
 msgstr ""
 
-#: models.py:317
-msgid "Event shop"
+#: models.py:363
+msgid "External shop"
 msgstr ""
 
-#: models.py:318
-msgid "Event shops"
+#: models.py:364
+msgid "External shops"
 msgstr ""
 
-#: models.py:327
+#: models.py:373
 msgid "start"
 msgstr ""
 
-#: models.py:328
+#: models.py:374
 msgid "end"
 msgstr ""
 
-#: models.py:340
+#: models.py:386
 msgid "This season already exists."
 msgstr ""
 
-#: models.py:344
+#: models.py:390
 msgid "Season"
 msgstr ""
 
-#: models.py:345
+#: models.py:391
 msgid "Seasons"
 msgstr ""
 
@@ -377,31 +385,3 @@ msgstr ""
 #: templates/agenda/includes/filter_panel.html:104
 msgid "Atom"
 msgstr ""
-
-#: utils.py:8
-msgid "MO"
-msgstr "LU"
-
-#: utils.py:8
-msgid "TU"
-msgstr "MA"
-
-#: utils.py:8
-msgid "WE"
-msgstr "ME"
-
-#: utils.py:8
-msgid "TH"
-msgstr "JE"
-
-#: utils.py:8
-msgid "FR"
-msgstr "VE"
-
-#: utils.py:8
-msgid "SA"
-msgstr "SA"
-
-#: utils.py:8
-msgid "SU"
-msgstr "DI"
