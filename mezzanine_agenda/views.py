@@ -57,6 +57,7 @@ class EventListView(ListView):
     template_name = "agenda/event_list.html"
     context_object_name = 'events'
     form_initial = {}
+    past_events = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -105,6 +106,11 @@ class EventListView(ListView):
                 exclude_tag = get_object_or_404(Keyword, id=exclude_tag_id)
                 events = events.exclude(keywords__keyword=exclude_tag)
 
+        # Past events
+        if settings.PAST_EVENTS:
+            self.past_events = events.filter(end__lt=datetime.now()).order_by("-start")
+
+
         # Filter by locations
         event_locations_filter = self.request.GET.getlist('event_locations_filter[]')
         if event_locations_filter:
@@ -116,6 +122,9 @@ class EventListView(ListView):
         if event_categories_filter:
             events = events.filter(category__name__in=event_categories_filter)
             self.form_initial['event_categories_filter'] = event_categories_filter
+            # filter past events
+            if settings.PAST_EVENTS:
+                self.past_events = self.past_events.filter(category__name__in=event_categories_filter)
 
         prefetch = ("keywords__keyword",)
         events = events.select_related("user").prefetch_related(*prefetch)
@@ -167,9 +176,7 @@ class EventListView(ListView):
 
         context['event_tag_highlighted'] = getattr(settings, 'EVENT_TAG_HIGHLIGHTED', 0)
         context['filter_form'] = EventFilterForm(initial=self.form_initial)
-        if settings.PAST_EVENTS:
-            context['past_events'] = Event.objects.filter(end__lt=datetime.now()).order_by("-start")
-
+        context['past_events'] = self.past_events
         return context
 
 
