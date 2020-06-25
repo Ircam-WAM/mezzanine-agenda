@@ -181,36 +181,44 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
         ).encode("utf-8")
         return icalendar_event
 
-    def _get_next_or_previous_by_start_date(self, is_next, **kwargs):
+    def _get_next_or_previous_by_start_date(self, is_next):
         """
         Retrieves next or previous object by start date. We implement
         our own version instead of Django's so we can hook into the
         published manager and concrete subclasses.
         """
-        arg = "start__gt" if is_next else "start__lt"
-        order = "start" if is_next else "-start"
-        lookup = {arg: self.start}
+        arg_start = "start__gte" if is_next else "start__lte"
+        arg_rank = "rank__gte" if is_next else "rank__lt"
+        order_start = "start" if is_next else "-start"
+        order_rank = "rank" if is_next else "-rank"
+        lookup = {arg_start: self.start, arg_rank: self.rank}
         concrete_model = base_concrete_model(Displayable, self)
+        queryset = concrete_model.objects.exclude(id=self.id)
+
         try:
-            queryset = concrete_model.objects.published
+            queryset = queryset.published()
         except AttributeError:
-            queryset = concrete_model.objects.all
+            pass
+
+        queryset = queryset.filter(**lookup) \
+            .filter(parent__isnull=True) \
+            .order_by(order_rank, order_start)
         try:
-            return queryset(**kwargs).filter(**lookup).filter(parent__isnull=True).order_by(order)[0]
+            return queryset[0]
         except IndexError:
             pass
 
-    def get_next_by_start_date(self, **kwargs):
+    def get_next_by_start_date(self):
         """
         Retrieves next object by start date.
         """
-        return self._get_next_or_previous_by_start_date(True, **kwargs)
+        return self._get_next_or_previous_by_start_date(True)
 
-    def get_previous_by_start_date(self, **kwargs):
+    def get_previous_by_start_date(self):
         """
         Retrieves previous object by start date.
         """
-        return self._get_next_or_previous_by_start_date(False, **kwargs)
+        return self._get_next_or_previous_by_start_date(False)
 
     def date_format(self):
         if self.periods.all():
