@@ -1,5 +1,0 @@
-icalendar
-geopy
-pytz
-django-autocomplete-light==3.2.1
--e .
