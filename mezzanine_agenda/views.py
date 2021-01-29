@@ -79,7 +79,6 @@ class EventListView(ListView):
         # display all events if user belongs to the staff
         if self.request.user.is_staff :
             events = Event.objects.all()
-        else :
             events = Event.objects.published(for_user=self.request.user)
 
         if self.tag is not None:
@@ -145,10 +144,12 @@ class EventListView(ListView):
         context.update({"year": self.year, "month": self.month, "day": self.day, "week": self.week,
                "tag": self.tag, "location": self.location, "author": self.author, 'day_date': self.day_date, 'is_archive' : False})
 
+        first_event = Event.objects.published()[0]
+        first_year = first_event.start.year
+        context['year_range'] = range(first_year, date.today().year, 1)
+        context["title"] = "Events"
+        context['past'] = False
         context['filter_form'] = EventFilterForm(initial=self.form_initial)
-        if settings.PAST_EVENTS:
-            context['past_events'] = Event.objects.filter(end__lt=datetime.now()).order_by("-start")
-
         return context
 
 
@@ -183,9 +184,10 @@ class ArchiveListView(ListView):
         events = Event.objects.published(for_user=self.request.user)
         if self.year is not None:
             # we suppose that self.year corresponds to start year of a season
+            self.season_title = 'Season ' + str(self.year) + '-' + str(digit_year + 1)
             season, created = Season.objects.get_or_create(
                 start__year=digit_year,
-                defaults={'title' : 'Season ' + str(self.year) + '-' + str(digit_year + 1),
+                defaults={'title' : self.season_title,
                           'start' : date(digit_year, 7, 31),
                           'end' : date(digit_year + 1, 8, 1)})
             # if current season, max date is the current date, not whole season
@@ -197,7 +199,7 @@ class ArchiveListView(ListView):
                 date_max = datetime.combine(date_max, time(23, 59, 59))
 
             season.start = datetime.combine(season.start, time(0, 0, 0))
-            events = events.filter(start__range=[season.start, date_max]).order_by("-start")
+            events = events.filter(start__range=[season.start, date_max]).order_by("start")
 
             if self.month is not None:
                 digit_month = int(self.month)
@@ -217,12 +219,18 @@ class ArchiveListView(ListView):
                 if self.day is not None:
                     events = events.filter(start__day=self.day)
                     self.day_date = date(year=digit_year, month=int(month_orig), day=int(self.day))
-
         return events
 
     def get_context_data(self, *args, **kwargs):
         context = super(ArchiveListView, self).get_context_data(**kwargs)
         context.update({"year": self.year, "month": self.month, "day": self.day, 'day_date': self.day_date, 'is_archive': True})
+
+        context["title"] = self.season_title
+        context['events'] = paginate(self.get_queryset(), self.request.GET.get("page", 1),
+                              settings.MEDIA_PER_PAGE,
+                              settings.MAX_PAGING_LINKS)
+
+        context['past'] = True
         return context
 
 
