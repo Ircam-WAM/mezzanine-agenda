@@ -79,7 +79,7 @@ class EventListView(ListView):
         events = Event.objects.published()
 
         # display all events if user belongs to the staff
-        if self.request.user.is_staff :
+        if self.request.user.is_staff:
             events = Event.objects.all()
 
         if self.tag is not None:
