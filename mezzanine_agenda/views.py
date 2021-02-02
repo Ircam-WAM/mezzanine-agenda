@@ -147,7 +147,7 @@ class EventListView(ListView):
 
         first_event = Event.objects.published()[0]
         first_year = first_event.start.year
-        context['year_range'] = range(first_year, date.today().year, 1)
+        context['year_range'] = range(date.today().year, first_year, -1)
         context["title"] = "Events"
         context['past'] = False
         context['filter_form'] = EventFilterForm(initial=self.form_initial)
