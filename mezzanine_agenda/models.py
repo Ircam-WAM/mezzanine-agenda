@@ -42,7 +42,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
     """
     An event.
     """
-    
+
     parent = models.ForeignKey('Event', verbose_name=_('parent'), related_name='children', blank=True, null=True, on_delete=models.SET_NULL)
     category = models.ForeignKey('EventCategory', verbose_name=_('category'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
 
@@ -255,7 +255,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
                 button['label'] = _('Reserve')
                 button['target'] = "_blank"
         return button
-            
+
 
 class EventLocation(TitledSlugged):
     """
@@ -313,7 +313,10 @@ class EventLocation(TitledSlugged):
         super(EventLocation, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.title + " - " + self.room)
+        if self.room:
+            return str(self.title + " - " + self.room)
+        else:
+            return self.title
 
     @models.permalink
     def get_absolute_url(self):
@@ -353,7 +356,7 @@ class EventCategory(SiteRelated):
 
 
 class ExternalShop(models.Model):
-    
+
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
     title = models.CharField(_('title'), max_length=512, help_text="Used for display", null=True, blank=True)
