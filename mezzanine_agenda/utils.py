@@ -31,18 +31,18 @@ def get_events_list_days_form(locations=[]):
         for period in event.periods.all():
             events_all_date[period.date_from.strftime('%Y-%m-%d')] = period.date_from
 
-    events_filtred = events_all_date           
+    events_filtred = events_all_date
 
     if locations:
         eventLocations = EventLocation.objects.filter(title__in=locations);
-        eventsFiltred = allEvents.filter(location__in=eventLocations)    
+        eventsFiltred = allEvents.filter(location__in=eventLocations)
         # List events date
         if eventsFiltred :
             events_filtred = {}
         for event in eventsFiltred:
             events_filtred[event.start.strftime('%Y-%m-%d')] = event.start
             for period in event.periods.all():
-                events_filtred[period.date_from.strftime('%Y-%m-%d')] = period.date_from    
+                events_filtred[period.date_from.strftime('%Y-%m-%d')] = period.date_from
     # Create range of days between the earliest and oldest event
     day_list = pd.date_range(start=events_all_date[min(events_all_date)], end=events_all_date[max(events_all_date)], normalize=True).tolist()
     for a_day in day_list :
@@ -59,7 +59,7 @@ def get_events_list_days_form(locations=[]):
         label = str(day_v.day)
         events_by_day.append((day_k, {'label': label, 'disabled': disabled}))
 
-    
+
     return events_by_day
 
 
@@ -70,10 +70,10 @@ def categorie_manager(categories=[]):
             if category[0] == settings.CATEGORY_TO_HIGHLIGHT:
                 frt_categories.append((category[0], {'class' : settings.CATEGORY_TO_HIGHLIGHT.lower(), 'label' : category[1]}))
             else :
-                frt_categories.append(category)    
+                frt_categories.append(category)
     else :
         frt_categories = categories
-    return frt_categories        
+    return frt_categories
 
 
 def sign_url(input_url=None, secret=None):
@@ -95,11 +95,11 @@ def sign_url(input_url=None, secret=None):
 
     if not input_url or not secret:
       raise Exception("Both input_url and secret are required")
-    
+
     url = urlparse(input_url)
 
     # We only need to sign the path+query part of the string
-    url_to_sign = url.path.decode("utf-8") + "?" + url.query.decode("utf-8") 
+    url_to_sign = url.path.decode("utf-8") + "?" + url.query.decode("utf-8")
 
     # Decode the private key into its binary format
     # We need to decode the URL-encoded private key

@@ -59,6 +59,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
     brochure = FileField(_('brochure'), upload_to='brochures', max_length=1024, blank=True)
     prices = models.ManyToManyField('EventPrice', verbose_name=_('prices'), related_name='events', blank=True)
     no_price_comments = RichTextField(_('Price comments'), blank=True, null=True)
+    streaming_comments = RichTextField(_('Streaming comments'), blank=True, null=True)
     mentions = models.TextField(_('mentions'), blank=True)
 
     allow_comments = models.BooleanField(verbose_name=_("Allow comments"), default=False)
@@ -263,7 +264,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
                 button['label'] = _('Reserve')
                 button['target'] = "_blank"
         return button
-            
+
 
 class EventLocation(TitledSlugged):
     """
@@ -361,7 +362,7 @@ class EventCategory(SiteRelated):
 
 
 class ExternalShop(models.Model):
-    
+
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
     title = models.CharField(_('title'), max_length=512, help_text="Used for display", null=True, blank=True)

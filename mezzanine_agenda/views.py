@@ -217,7 +217,7 @@ class ArchiveListView(ListView):
                           'start' : date(digit_year, 7, 31),
                           'end' : date(digit_year + 1, 8, 1)})
 
-            # filter events from beginning of seasons to today or end of season            
+            # filter events from beginning of seasons to today or end of season
             if date_now.date() > season.end:
                 date_max = datetime.combine(season.end, time(23, 59, 59))
             else :
@@ -261,7 +261,7 @@ def event_detail(request, slug, year=None, month=None, day=None,
     """
     events = Event.objects.published(for_user=request.user).select_related()
     event = get_object_or_404(events, slug=slug)
-    
+
     try:
         previous_event = Event.get_previous_by_start(event)
         previous_event_url = reverse('event_detail', args=[previous_event.slug])

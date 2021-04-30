@@ -6,7 +6,7 @@ from mezzanine_agenda.models import *
 @register(Event)
 class EventTranslationOptions(TranslationOptions):
 
-    fields = ('title', 'sub_title', 'description', 'content', 'mentions', 'no_price_comments')
+    fields = ('title', 'sub_title', 'description', 'content', 'mentions', 'no_price_comments', 'streaming_comments')
 
 @register(EventLocation)
 class EventLocationTranslationOptions(TranslationOptions):
