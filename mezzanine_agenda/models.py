@@ -192,7 +192,9 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
         arg_rank = "rank__gte" if is_next else "rank__lt"
         order_start = "start" if is_next else "-start"
         order_rank = "rank" if is_next else "-rank"
-        lookup = {arg_start: self.start, arg_rank: self.rank}
+        lookup = {arg_start: self.start}
+        if self.rank:
+            lookup[arg_rank] = self.rank
         concrete_model = base_concrete_model(Displayable, self)
         queryset = concrete_model.objects.exclude(id=self.id)
 
@@ -204,6 +206,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
         queryset = queryset.filter(**lookup) \
             .filter(parent__isnull=True) \
             .order_by(order_rank, order_start)
+
         try:
             return queryset[0]
         except IndexError:
