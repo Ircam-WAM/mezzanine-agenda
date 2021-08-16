@@ -1,5 +1,0 @@
-icalendar==4.0.3
-geopy==1.17.0
-pytz==2018.7
-django-autocomplete-light==3.2.1
--e .
