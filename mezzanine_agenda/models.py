@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
@@ -318,9 +318,8 @@ class EventLocation(TitledSlugged):
         else:
             return self.title
 
-    @models.permalink
     def get_absolute_url(self):
-        return ("event_list_location", (), {"location": self.slug})
+        return reverse("event_list_location", kwargs={"location": self.slug})
 
 
 class EventPrice(models.Model):

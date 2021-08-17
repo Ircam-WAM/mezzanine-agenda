@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django import template
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Count, Q
 from django.utils import timezone
 from django.utils.http import urlquote as quote
