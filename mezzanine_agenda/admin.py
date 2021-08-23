@@ -5,7 +5,7 @@ from mezzanine.conf import settings
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from organization.core.admin import TeamOwnableAdmin
+from mezzanine.core.admin import TeamOwnableAdmin
 from mezzanine_agenda.models import Event, EventLocation, EventPrice, EventCategory, ExternalShop, Season
 from mezzanine_agenda.forms import EventAdminForm
 from mezzanine.conf import settings
