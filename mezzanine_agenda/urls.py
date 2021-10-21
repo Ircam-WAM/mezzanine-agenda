@@ -3,7 +3,12 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from mezzanine.conf import settings
-from mezzanine_agenda.views import *
+from mezzanine_agenda.views import event_feed, EventListView, icalendar,\
+    ArchiveListView, event_detail, icalendar_event, event_booking,\
+    EventBookingShopConfirmationView, EventBookingGlobalConfirmationView,\
+    EventBookingPassView, LocationListView, LocationDetailView,\
+    EventPriceAutocompleteView
+
 # Trailing slash for urlpatterns based on setup.
 _slash = "/" if settings.APPEND_SLASH else ""
 
@@ -30,28 +35,28 @@ urlpatterns = [
         EventListView.as_view(), name="event_list_author"),
     url("^author/(?P<username>.*)/calendar.ics$",
         icalendar, name="icalendar_author"),
-    url("^archive/(?P<year>\d{4})/(?P<month>\d{1,2})%s$" % _slash,
+    url(r"^archive/(?P<year>\d{4})/(?P<month>\d{1,2})%s$" % _slash,
         ArchiveListView.as_view(), name="event_list_month"),
-    url("^archive/(?P<year>\d{4})/(?P<month>\d{1,2})/calendar.ics$",
+    url(r"^archive/(?P<year>\d{4})/(?P<month>\d{1,2})/calendar.ics$",
         icalendar, name="icalendar_month"),
     url(r'^archive(?:/(?P<year>\d{4}))?/$',
         ArchiveListView.as_view(), name="event_list_year"),
-    url("^archive/(?P<year>\d{4})/calendar.ics$",
+    url(r"^archive/(?P<year>\d{4})/calendar.ics$",
         icalendar, name="icalendar_year"),
-    url("^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/"
+    url(r"^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/"
         "(?P<slug>.*)%s$" % _slash,
         event_detail, name="event_detail_day"),
-    url("^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<slug>.*)%s$" % _slash,
+    url(r"^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<slug>.*)%s$" % _slash,
         event_detail, name="event_detail_month"),
-    url("^(?P<year>\d{4})/(?P<slug>.*)%s$" % _slash,
+    url(r"^(?P<year>\d{4})/(?P<slug>.*)%s$" % _slash,
         event_detail, name="event_detail_year"),
-    url("^week/(?P<year>\d{4})/(?P<week>\d{1,2})%s$" % _slash,
+    url(r"^week/(?P<year>\d{4})/(?P<week>\d{1,2})%s$" % _slash,
         EventListView.as_view(), name="event_list_week"),
-    url("^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/"
+    url(r"^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/"
         "(?P<slug>.*)/event.ics$", icalendar_event, name="icalendar_event_day"),
-    url("^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<slug>.*)/event.ics$",
+    url(r"^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<slug>.*)/event.ics$",
         icalendar_event, name="icalendar_event_month"),
-    url("^(?P<year>\d{4})/(?P<slug>.*)/event.ics$",
+    url(r"^(?P<year>\d{4})/(?P<slug>.*)/event.ics$",
         icalendar_event, name="icalendar_event_year"),
     url("^(?P<slug>.*)/detail/event.ics$", icalendar_event, name="icalendar_event"),
     url("^calendar.ics$", icalendar, name="icalendar"),
@@ -60,14 +65,25 @@ urlpatterns = [
     url("^$", EventListView.as_view(), name="event_list"),
     url("^(?P<slug>.*)/booking%s$" % _slash, event_booking,
         name="event_booking"),
-    url("^shop/(?P<pk>.*)/confirmation%s$" % _slash,
-        EventBookingShopConfirmationView.as_view(), name="event_booking_shop_confirmation"),
-    url("^confirmation/(?P<transaction_id>[0-9]*)$",
-        EventBookingGlobalConfirmationView.as_view(), name="event_booking_global_confirmation"),
-    url("^pass%s$" % _slash,
-            EventBookingPassView.as_view(), name="event_pass"),
-    url("^archive/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})%s$" % _slash,
-        ArchiveListView.as_view(), name="event_list_day"),
+    url(
+        "^shop/(?P<pk>.*)/confirmation%s$" % _slash,
+        EventBookingShopConfirmationView.as_view(),
+        name="event_booking_shop_confirmation"
+    ),
+    url(
+        "^confirmation/(?P<transaction_id>[0-9]*)$",
+        EventBookingGlobalConfirmationView.as_view(),
+        name="event_booking_global_confirmation"
+    ),
+    url(
+        "^pass%s$" % _slash,
+        EventBookingPassView.as_view(),
+        name="event_pass"
+    ),
+    url(
+        r"^archive/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})%s$" % _slash,
+        ArchiveListView.as_view(), name="event_list_day"
+    ),
     url("^locations/$", LocationListView.as_view(), name="location-list"),
     url("^locations/(?P<slug>.*)%s$" % _slash,
         LocationDetailView.as_view(), name="location-detail"),

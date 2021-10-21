@@ -82,7 +82,7 @@ class EventsRSS(Feed):
     def locations(self):
         if not self._public:
             return []
-        return EventLocations.objects.all()
+        return EventLocation.objects.all()
 
     def item_author_name(self, item):
         return item.user.get_full_name() or item.user.username

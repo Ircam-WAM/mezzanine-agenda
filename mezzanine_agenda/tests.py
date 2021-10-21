@@ -8,7 +8,7 @@ except ImportError:
 from datetime import datetime, timedelta
 
 from django.urls import reverse
-from unittest import skipUnless,skip
+from unittest import skipUnless, skip
 
 from mezzanine_agenda.models import Event, EventLocation
 from mezzanine.conf import settings
@@ -16,8 +16,6 @@ from mezzanine.conf import settings
 from mezzanine.core.models import CONTENT_STATUS_DRAFT, CONTENT_STATUS_PUBLISHED
 from mezzanine.pages.models import RichTextPage
 from mezzanine.utils.tests import TestCase
-
-from datetime import datetime
 
 
 class EventTests(TestCase):
@@ -63,7 +61,10 @@ class EventTests(TestCase):
         )
         self.unicode_event.save()
         self.events = (self.event, self.unicode_event)
-        self.event_page = RichTextPage.objects.create(title="events", slug=settings.EVENT_SLUG)
+        self.event_page = RichTextPage.objects.create(
+            title="events",
+            slug=settings.EVENT_SLUG
+        )
 
     @skip('Error : title_fr is not in list')
     def test_event_views(self):
@@ -78,8 +79,12 @@ class EventTests(TestCase):
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse("event_feed", args=("atom",)))
         self.assertEqual(response.status_code, 200)
-        event = Event.objects.create(title="Event", start=datetime.now(), user=self._user,
-                                            status=CONTENT_STATUS_PUBLISHED)
+        event = Event.objects.create(
+            title="Event",
+            start=datetime.now(),
+            user=self._user,
+            status=CONTENT_STATUS_PUBLISHED
+        )
         response = self.client.get(event.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
@@ -92,14 +97,14 @@ class EventTests(TestCase):
         Test the events is login protected if its page has login_required
         set to True.
         """
-        self.event_page.login_required=True
+        self.event_page.login_required = True
         self.event_page.save()
         response = self.client.get(reverse("event_list"), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(len(response.redirect_chain) > 0)
         redirect_path = urlparse(response.redirect_chain[0][0]).path
         self.assertEqual(redirect_path, settings.LOGIN_URL)
-        self.event_page.login_required=False
+        self.event_page.login_required = False
         self.event_page.save()
 
     @skip('too random')
@@ -110,7 +115,10 @@ class EventTests(TestCase):
         self.eventlocation.clean()
         self.assertAlmostEqual(self.eventlocation.lat, -34.907924, places=5)
         self.assertAlmostEqual(self.eventlocation.lon, 138.567624, places=5)
-        self.assertEqual(self.eventlocation.mappable_location, '1 Susan Street, Hindmarsh SA 5007, Australia')
+        self.assertEqual(
+            self.eventlocation.mappable_location,
+            '1 Susan Street, Hindmarsh SA 5007, Australia'
+        )
         self.unicode_eventlocation.clean()
         self.assertAlmostEqual(self.unicode_eventlocation.lat, 35.729534, places=5)
         self.assertAlmostEqual(self.unicode_eventlocation.lon, 139.718055, places=5)

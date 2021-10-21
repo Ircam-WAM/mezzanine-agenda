@@ -8,26 +8,38 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
+from django.utils.text import slugify
 
 from geopy.geocoders import GoogleV3 as GoogleMaps
 from geopy.exc import GeocoderQueryError
 
 from icalendar import Event as IEvent
-from copy import deepcopy
 
 from mezzanine.conf import settings
-from mezzanine.core.fields import FileField, RichTextField, OrderField
-from mezzanine.core.models import Displayable, TeamOwnable, RichText, Slugged, SiteRelated
+from mezzanine.core.fields import FileField, RichTextField
+from mezzanine.core.models import Displayable, TeamOwnable, RichText, SiteRelated
 from mezzanine.generic.fields import CommentsField, RatingField
-from mezzanine.utils.models import AdminThumbMixin, upload_to
+from mezzanine.utils.models import AdminThumbMixin
 from mezzanine.utils.sites import current_site_id
-from mezzanine.utils.models import base_concrete_model, get_user_model_name
+from mezzanine.utils.models import base_concrete_model
 
 from organization.core.models import TitledSlugged
 
 
-ALIGNMENT_CHOICES = (('left', _('left')), ('center', _('center')), ('right', _('right')))
+ALIGNMENT_CHOICES = (
+    (
+        'left',
+        _('left')
+    ),
+    (
+        'center',
+        _('center')
+    ),
+    (
+        'right',
+        _('right')
+    )
+)
 
 
 class SubTitle(models.Model):
@@ -43,25 +55,64 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
     An event.
     """
 
-    parent = models.ForeignKey('Event', verbose_name=_('parent'), related_name='children', blank=True, null=True, on_delete=models.SET_NULL)
-    category = models.ForeignKey('EventCategory', verbose_name=_('category'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey(
+        'Event',
+        verbose_name=_('parent'),
+        related_name='children',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    category = models.ForeignKey(
+        'EventCategory',
+        verbose_name=_('category'),
+        related_name='events',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
     start = models.DateTimeField(_("Start"))
     end = models.DateTimeField(_("End"), blank=True, null=True)
     date_text = models.CharField(_('Date text'), max_length=512, blank=True, null=True)
 
-    location = models.ForeignKey("EventLocation", blank=True, null=True, on_delete=models.SET_NULL)
+    location = models.ForeignKey(
+        "EventLocation",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
     facebook_event = models.BigIntegerField(_('Facebook ID'), blank=True, null=True)
-    shop = models.ForeignKey('ExternalShop', verbose_name=_('shop'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
+    shop = models.ForeignKey(
+        'ExternalShop',
+        verbose_name=_('shop'),
+        related_name='events',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
     external_id = models.IntegerField(_('External ID'), null=True, blank=True)
     is_full = models.BooleanField(verbose_name=_("Is Full"), default=False)
 
-    brochure = FileField(_('brochure'), upload_to='brochures', max_length=1024, blank=True)
-    prices = models.ManyToManyField('EventPrice', verbose_name=_('prices'), related_name='events', blank=True)
+    brochure = FileField(
+        _('brochure'),
+        upload_to='brochures',
+        max_length=1024,
+        blank=True
+    )
+    prices = models.ManyToManyField(
+        'EventPrice',
+        verbose_name=_('prices'),
+        related_name='events',
+        blank=True
+    )
     no_price_comments = RichTextField(_('Price comments'), blank=True, null=True)
     mentions = models.TextField(_('mentions'), blank=True)
 
-    allow_comments = models.BooleanField(verbose_name=_("Allow comments"), default=False)
+    allow_comments = models.BooleanField(
+        verbose_name=_("Allow comments"),
+        default=False
+    )
     comments = CommentsField(verbose_name=_("Comments"))
     rating = RatingField(verbose_name=_("Rating"))
     rank = models.IntegerField(verbose_name=_('rank'), blank=True, null=True)
@@ -86,7 +137,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
     def save(self, *args, **kwargs):
         super(Event, self).save(*args, **kwargs)
         # take some values from parent
-        if not self.parent is None:
+        if self.parent is not None:
             self.title = self.parent.title
             self.user = self.parent.user
             self.status = self.parent.status
@@ -102,7 +153,10 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
                 self.mentions_en = self.parent.mentions_en
             parent_images = self.parent.images.select_related('event').all()
             for parent_image in parent_images:
-                if not self.images.filter(file=parent_image.file, type=parent_image.type):
+                if not self.images.filter(
+                    file=parent_image.file,
+                    type=parent_image.type
+                ):
                     parent_image.pk = None
                     parent_image.save()
                     parent_image.event = self
@@ -196,7 +250,10 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
         except AttributeError:
             queryset = concrete_model.objects.all
         try:
-            return queryset(**kwargs).filter(**lookup).filter(parent__isnull=True).order_by(order)[0]
+            return queryset(**kwargs)\
+                .filter(**lookup)\
+                .filter(parent__isnull=True)\
+                .order_by(order)[0]
         except IndexError:
             pass
 
@@ -265,9 +322,27 @@ class EventLocation(TitledSlugged):
     address = models.TextField()
     postal_code = models.CharField(_('postal code'), max_length=16)
     city = models.CharField(_('city'), max_length=255)
-    mappable_location = models.CharField(max_length=1024, blank=True, help_text="This address will be used to calculate latitude and longitude. Leave blank and set Latitude and Longitude to specify the location yourself, or leave all three blank to auto-fill from the Location field.")
-    lat = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True, verbose_name="Latitude", help_text="Calculated automatically if mappable location is set.")
-    lon = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True, verbose_name="Longitude", help_text="Calculated automatically if mappable location is set.")
+    mappable_location = models.CharField(
+        max_length=1024,
+        blank=True,
+        help_text="This address will be used to calculate latitude and longitude. Leave blank and set Latitude and Longitude to specify the location yourself, or leave all three blank to auto-fill from the Location field."  # noqa: E501
+    )
+    lat = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        blank=True,
+        null=True,
+        verbose_name="Latitude",
+        help_text="Calculated automatically if mappable location is set."
+    )
+    lon = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        blank=True,
+        null=True,
+        verbose_name="Longitude",
+        help_text="Calculated automatically if mappable location is set."
+    )
     room = models.CharField(_('room'), max_length=512, blank=True, null=True)
     description = RichTextField(_('description'), blank=True)
     link = models.URLField(max_length=512, blank=True, null=True)
@@ -291,16 +366,21 @@ class EventLocation(TitledSlugged):
             raise ValidationError("Latitude required if specifying longitude.")
 
         if not (self.lat and self.lon) and not self.mappable_location:
-            self.mappable_location = self.address.replace("\n"," ").replace('\r', ' ') + ", " + self.postal_code + " " + self.city
+            self.mappable_location = self.address\
+                .replace("\n", " ")\
+                .replace('\r', ' ') + ", " + self.postal_code + " " + self.city
 
-        if self.mappable_location and not (self.lat and self.lon): #location should always override lat/long if set
-            g = GoogleMaps(api_key=settings.GOOGLE_API_KEY,domain=settings.EVENT_GOOGLE_MAPS_DOMAIN)
+        if self.mappable_location and not (self.lat and self.lon):  # location should always override lat/long if set  # noqa: E501
+            g = GoogleMaps(
+                api_key=settings.GOOGLE_API_KEY,
+                domain=settings.EVENT_GOOGLE_MAPS_DOMAIN
+            )
             try:
                 mappable_location, (lat, lon) = g.geocode(self.mappable_location)
             except GeocoderQueryError as e:
-                raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e))
+                raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e))  # noqa: E501
             except ValueError as e:
-                raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e.message))
+                raise ValidationError("The mappable location you specified could not be found on {service}: \"{error}\" Try changing the mappable location, removing any business names, or leaving mappable location blank and using coordinates from getlatlon.com.".format(service="Google Maps", error=e.message))  # noqa: E501
             self.mappable_location = mappable_location
             self.lat = lat
             self.lon = lon
@@ -358,11 +438,22 @@ class ExternalShop(models.Model):
 
     name = models.CharField(_('name'), max_length=512)
     description = models.TextField(_('description'), blank=True)
-    title = models.CharField(_('title'), max_length=512, help_text="Used for display", null=True, blank=True)
+    title = models.CharField(
+        _('title'),
+        max_length=512,
+        help_text="Used for display",
+        null=True,
+        blank=True
+    )
     content = RichTextField(_("Content"), blank=True, null=True)
     item_url = models.CharField(_('Item URL'), max_length=255)
     pass_url = models.CharField(_('Pass URL'), max_length=255, blank=True, null=True)
-    confirmation_url = models.CharField(_('Confirmation URL'), max_length=255, blank=True, null=True)
+    confirmation_url = models.CharField(
+        _('Confirmation URL'),
+        max_length=255,
+        blank=True,
+        null=True
+    )
 
     class Meta:
         verbose_name = _("External shop")
@@ -379,22 +470,21 @@ class Season(models.Model):
     end = models.DateField(_('end'))
 
     def clean(self):
-        cleaned_data = super(Season, self).clean()
+        super(Season, self).clean()
         queryset = Season.objects.filter(
-                    Q(start__startswith=self.start.strftime('%Y'))
-                      and Q(end__startswith=self.end.strftime('%Y')))
+            Q(start__startswith=self.start.strftime('%Y'))
+            and Q(end__startswith=self.end.strftime('%Y'))
+        )
 
-        if not self.id is None:
+        if self.id is not None:
             queryset = queryset.exclude(id=self.id)
 
         if queryset.exists():
             raise ValidationError(_('This season already exists.'))
 
-
     class Meta:
         verbose_name = _("Season")
         verbose_name_plural = _("Seasons")
-
 
     def __str__(self):
         return self.title
