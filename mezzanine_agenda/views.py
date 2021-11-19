@@ -21,11 +21,27 @@ from mezzanine.conf import settings
 from mezzanine.generic.models import Keyword
 from mezzanine.utils.views import render
 from mezzanine.utils.models import get_user_model
+from django.utils.translation import ugettext_lazy as _
+from django.utils.text import slugify
 
 from mezzanine_agenda.forms import EventFilterForm
 
-
 User = get_user_model()
+
+MONTH_CHOICES = {
+    1: _('January'),
+    2: _('February'),
+    3: _('March'),
+    4: _('April'),
+    5: _('May'),
+    6: _('June'),
+    7: _('July'),
+    8: _('August'),
+    9: _('September'),
+    10: _('October'),
+    11: _('November'),
+    12: _('December'),
+}
 
 
 def next_weekday(d, weekday):
@@ -63,7 +79,6 @@ class EventListView(ListView):
         return response
 
     def get_queryset(self, tag=None):
-        settings.use_editable()
         self.templates = []
         self.day_date = None
         events = None
@@ -84,14 +99,6 @@ class EventListView(ListView):
             events = Event.objects.all()
         else:
             events = Event.objects.published(for_user=self.request.user)
-
-        if self.tag is not None:
-            self.tag = get_object_or_404(Keyword, slug=self.tag)
-            events = events.filter(keywords__keyword=self.tag)
-        else:
-            for exclude_tag_id in settings.EVENT_EXCLUDE_TAG_LIST:
-                exclude_tag = get_object_or_404(Keyword, id=exclude_tag_id)
-                events = events.exclude(keywords__keyword=exclude_tag)
 
         # if not day:
         #     events = events.filter(parent=None)
@@ -149,9 +156,98 @@ class EventListView(ListView):
         prefetch = ("keywords__keyword",)
         events = events.select_related("user").prefetch_related(*prefetch)
         self.templates.append(self.template_name)
+
+        self.tag_list = events.values_list(
+            'keywords__keyword',
+            flat=True,
+        )
+        self.tag_list = list(dict.fromkeys(self.tag_list))
+        removed = []
+        for tag in self.tag_list:
+            if tag is None or tag in settings.EVENT_EXCLUDE_TAG_LIST:
+                removed.append(tag)
+        for tag in removed:
+            self.tag_list.remove(tag)
+        self.tag_list = Keyword.objects.filter(id__in=self.tag_list)
+
+        if self.tag is not None:
+            self.tag = get_object_or_404(Keyword, slug=self.tag)
+            events = events.filter(keywords__keyword=self.tag)
+        else:
+            for exclude_tag_id in settings.EVENT_EXCLUDE_TAG_LIST:
+                exclude_tag = get_object_or_404(Keyword, id=exclude_tag_id)
+                events = events.exclude(keywords__keyword=exclude_tag)
+
+        months = events.order_by(
+            "start"
+        ).values_list(
+            'start__month',
+            'start__year'
+        )
+        months = list(dict.fromkeys(months))
+
+        if months:
+            events_by_month = {}
+            for month, year in months:
+                events_by_month[MONTH_CHOICES[month] + ' ' + str(year)] = []
+                digit_month = int(month)
+                first_day_in_month = date(year, digit_month, 1)
+                last_day_in_month = date(
+                    year, digit_month,
+                    monthrange(year, digit_month)[1]
+                )
+                tmp = events\
+                    .filter(
+                        start__year=year,
+                    )\
+                    .filter(
+                        (
+                            Q(start__lt=first_day_in_month,)
+                            & Q(end__gt=last_day_in_month)
+                        )
+                        | Q(start__range=(first_day_in_month, last_day_in_month))
+                        | Q(start__month=month)
+                    ).order_by("start")
+                for event in tmp:
+                    events_by_month[
+                        MONTH_CHOICES[month] + ' ' + str(year)
+                    ].append(event)
+            return events_by_month  # events in template context
+
         return events
 
     def get_context_data(self, *args, **kwargs):
+        tmp = self.request.page
+        root = self.request.page
+        while tmp:
+            if tmp.parent:
+                tmp = tmp.parent
+            else:
+                root = tmp
+                tmp = False
+        menu = [root]
+        if root == self.request.page:
+            submenu = []
+            for month in self.object_list:
+                submenu.append({
+                    "href": slugify(month),
+                    "text": month,
+                    "extra_class": "slow-move"
+                })
+            menu.append(submenu)
+
+        for page in root.children.all().order_by("_order"):
+            menu.append(page)
+            if page == self.request.page:
+                submenu = []
+                for month in self.object_list:
+                    submenu.append({
+                        "href": slugify(month),
+                        "text": month,
+                        "extra_class": "slow-move"
+                    })
+                menu.append(submenu)
+
         context = super(EventListView, self).get_context_data(**kwargs)
         context.update(
             {
@@ -159,11 +255,14 @@ class EventListView(ListView):
                 "month": self.month,
                 "day": self.day,
                 "week": self.week,
+                "tag_list": self.tag_list,
                 "tag": self.tag,
                 "location": self.location,
                 "author": self.author,
                 'day_date': self.day_date,
-                'is_archive': False
+                'is_archive': False,
+                'ordered_by_month': True,
+                'menu': menu
             }
         )
 
@@ -197,7 +296,6 @@ class ArchiveListView(ListView):
 
     def get_queryset(self, tag=None):
 
-        settings.use_editable()
         self.templates = self.template_name
         self.day_date = None
         events = None
@@ -261,10 +359,67 @@ class ArchiveListView(ListView):
                         month=int(month_orig),
                         day=int(self.day)
                     )
-
+        months = events.order_by(
+            "-start"
+        ).values_list(
+            'start__month',
+            'start__year'
+        )
+        months = list(dict.fromkeys(months))
+        if months:
+            events_by_month = {}
+            for month, year in months:
+                events_by_month[MONTH_CHOICES[month] + ' ' + str(year)] = []
+                digit_month = int(month)
+                first_day_in_month = date(digit_year, digit_month, 1)
+                last_day_in_month = date(
+                    digit_year, digit_month,
+                    monthrange(digit_year, digit_month)[1]
+                )
+                tmp = events\
+                    .filter(
+                        start__year=year,
+                    )\
+                    .filter(
+                        (
+                            Q(start__lt=first_day_in_month,)
+                            & Q(end__gt=last_day_in_month)
+                        )
+                        | Q(start__range=(first_day_in_month, last_day_in_month))
+                        | Q(start__month=month)
+                    ).order_by("-start")
+                for event in tmp:
+                    events_by_month[
+                        MONTH_CHOICES[month] + ' ' + str(year)
+                    ].append(event)
+            return events_by_month  # events in template context
         return events
 
     def get_context_data(self, *args, **kwargs):
+        tmp = self.request.page
+        root = self.request.page
+        while tmp:
+            if tmp.parent:
+                tmp = tmp.parent
+            else:
+                root = tmp
+                tmp = False
+        menu = [root]
+        for page in root.children.all().order_by("_order"):
+            menu.append(page)
+            submenu = []
+            for page2 in page.children.all().order_by("_order"):
+                submenu.append(page2)
+                if page2 == self.request.page:
+                    subsubmenu = []
+                    for month in self.object_list:
+                        subsubmenu.append({
+                            "href": slugify(month),
+                            "text": month,
+                            "extra_class": "slow-move"
+                        })
+                    submenu.append(subsubmenu)
+            menu.append(submenu)
         context = super(ArchiveListView, self).get_context_data(**kwargs)
         context.update(
             {
@@ -272,7 +427,9 @@ class ArchiveListView(ListView):
                 "month": self.month,
                 "day": self.day,
                 'day_date': self.day_date,
-                'is_archive': True
+                'is_archive': True,
+                'menu': menu,
+                'ordered_by_month': True
             }
         )
         return context
@@ -380,7 +537,6 @@ def icalendar(
     Returns the icalendar for a group of events that are filtered by tag,
     year, month, author or location.
     """
-    settings.use_editable()
     events = Event.objects.published(for_user=request.user)
     if tag is not None:
         tag = get_object_or_404(Keyword, slug=tag)
