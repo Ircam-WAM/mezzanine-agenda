@@ -23,6 +23,7 @@ from mezzanine.utils.views import render
 from mezzanine.utils.models import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import slugify
+from django.utils import translation
 
 from mezzanine_agenda.forms import EventFilterForm
 
@@ -187,9 +188,20 @@ class EventListView(ListView):
         months = list(dict.fromkeys(months))
 
         if months:
+            already = []
             events_by_month = {}
             for month, year in months:
-                events_by_month[MONTH_CHOICES[month] + ' ' + str(year)] = []
+                with translation.override('fr'):
+                    m = str(MONTH_CHOICES[month])
+                events_by_month[
+                    m +
+                    ' ' +
+                    str(year) +
+                    ',' +
+                    MONTH_CHOICES[month] +
+                    ' ' +
+                    str(year)
+                ] = []
                 digit_month = int(month)
                 first_day_in_month = date(year, digit_month, 1)
                 last_day_in_month = date(
@@ -209,9 +221,19 @@ class EventListView(ListView):
                         | Q(start__month=month)
                     ).order_by("start")
                 for event in tmp:
-                    events_by_month[
-                        MONTH_CHOICES[month] + ' ' + str(year)
-                    ].append(event)
+                    if event.id not in already:
+                        with translation.override('fr'):
+                            m = str(MONTH_CHOICES[month])
+                        events_by_month[
+                            m +
+                            ' ' +
+                            str(year) +
+                            ',' +
+                            MONTH_CHOICES[month] +
+                            ' ' +
+                            str(year)
+                        ].append(event)
+                        already.append(event.id)
             return events_by_month  # events in template context
 
         return events
@@ -229,9 +251,10 @@ class EventListView(ListView):
         if root == self.request.page:
             submenu = []
             for month in self.object_list:
+                m = month.split(',')
                 submenu.append({
-                    "href": slugify(month),
-                    "text": month,
+                    "href": slugify(m[0]),
+                    "text": m[1],
                     "extra_class": "slow-move"
                 })
             menu.append(submenu)
@@ -241,9 +264,10 @@ class EventListView(ListView):
             if page == self.request.page:
                 submenu = []
                 for month in self.object_list:
+                    m = month.split(',')
                     submenu.append({
-                        "href": slugify(month),
-                        "text": month,
+                        "href": slugify(m[0]),
+                        "text": m[1],
                         "extra_class": "slow-move"
                     })
                 menu.append(submenu)
@@ -367,9 +391,21 @@ class ArchiveListView(ListView):
         )
         months = list(dict.fromkeys(months))
         if months:
+            already = []
             events_by_month = {}
             for month, year in months:
-                events_by_month[MONTH_CHOICES[month] + ' ' + str(year)] = []
+
+                with translation.override('fr'):
+                    m = str(MONTH_CHOICES[month])
+                events_by_month[
+                    m +
+                    ' ' +
+                    str(year) +
+                    ',' +
+                    MONTH_CHOICES[month] +
+                    ' ' +
+                    str(year)
+                ] = []
                 digit_month = int(month)
                 first_day_in_month = date(digit_year, digit_month, 1)
                 last_day_in_month = date(
@@ -389,9 +425,19 @@ class ArchiveListView(ListView):
                         | Q(start__month=month)
                     ).order_by("-start")
                 for event in tmp:
-                    events_by_month[
-                        MONTH_CHOICES[month] + ' ' + str(year)
-                    ].append(event)
+                    if event.id not in already:
+                        with translation.override('fr'):
+                            m = str(MONTH_CHOICES[month])
+                        events_by_month[
+                            m +
+                            ' ' +
+                            str(year) +
+                            ',' +
+                            MONTH_CHOICES[month] +
+                            ' ' +
+                            str(year)
+                        ].append(event)
+                        already.append(event.id)
             return events_by_month  # events in template context
         return events
 
@@ -413,9 +459,10 @@ class ArchiveListView(ListView):
                 if page2 == self.request.page:
                     subsubmenu = []
                     for month in self.object_list:
+                        m = month.split(',')
                         subsubmenu.append({
-                            "href": slugify(month),
-                            "text": month,
+                            "href": slugify(m[0]),
+                            "text": m[1],
                             "extra_class": "slow-move"
                         })
                     submenu.append(subsubmenu)
