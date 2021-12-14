@@ -8,13 +8,8 @@ from mezzanine.core.admin import TeamOwnableAdmin
 from mezzanine_agenda.models import Event, EventLocation, EventPrice, EventCategory,\
     ExternalShop, Season
 from mezzanine_agenda.forms import EventAdminForm
-<<<<<<< HEAD
 from mezzanine.core.admin import DisplayableAdmin, OwnableAdmin,\
     BaseTranslationModelAdmin
-=======
-from mezzanine.conf import settings
-from mezzanine.core.admin import DisplayableAdmin, OwnableAdmin, BaseTranslationModelAdmin
->>>>>>> ee17991 ([Task #775] : improve list and product detail)
 
 
 class EventAdminBase(admin.ModelAdmin):
