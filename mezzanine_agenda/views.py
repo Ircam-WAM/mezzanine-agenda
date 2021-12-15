@@ -313,7 +313,7 @@ class ArchiveListView(ListView):
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
-        if not hasattr(self.kwargs, 'year'):
+        if 'year' not in self.kwargs:
             self.kwargs['year'] = None
         if self.kwargs['year'] is None:
             curr_year = date.today().year
