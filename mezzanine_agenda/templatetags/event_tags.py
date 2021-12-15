@@ -183,7 +183,7 @@ def google_calendar_url(event):
     else:
         end_date = start_date
     url = Site.objects.get(id=current_site_id()).domain + event.get_absolute_url()
-    if event.location:
+    if event.location and event.location.mappable_location:
         location = quote(event.location.mappable_location)
     else:
         location = None
@@ -195,9 +195,11 @@ def google_nav_url(obj):
     """
     Generates a link to get directions to an event or location with google maps.
     """
-    if isinstance(obj, Event):
+    if isinstance(obj, Event) and obj.location and obj.location.mappable_location:
         location = quote(obj.location.mappable_location)
-    elif isinstance(obj, EventLocation):
+    elif isinstance(obj, EventLocation) and \
+            obj.location and \
+            obj.location.mappable_location:
         location = quote(obj.mappable_location)
     else:
         return ''
@@ -213,10 +215,12 @@ def google_static_map(obj, width, height, zoom):
     """
     Generates a static google map for the event location.
     """
-    if isinstance(obj, Event):
+    if isinstance(obj, Event) and obj.location and obj.location.mappable_location:
         location = quote(obj.location.mappable_location)
         marker = quote('{:.6},{:.6}'.format(obj.location.lat, obj.location.lon))
-    elif isinstance(obj, EventLocation):
+    elif isinstance(obj, EventLocation) and \
+            obj.location and \
+            obj.location.mappable_location:
         location = quote(obj.mappable_location)
         marker = quote('{:.6},{:.6}'.format(obj.lat, obj.lon))
     else:
