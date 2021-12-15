@@ -313,6 +313,8 @@ class ArchiveListView(ListView):
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
+        if not hasattr(self.kwargs, 'year'):
+            self.kwargs['year'] = None
         if self.kwargs['year'] is None:
             curr_year = date.today().year
             response = redirect('event_list_year', year=curr_year)
