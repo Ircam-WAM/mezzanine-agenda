@@ -705,7 +705,7 @@ class EventPriceAutocompleteView(autocomplete.Select2QuerySetView):
         return str(item.value) + item.unit + desc
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated:
             return EventPrice.objects.none()
 
         qs = EventPrice.objects.all()
