@@ -324,8 +324,9 @@ def same_time_in_periods(periods):
         if periods[0].date_to:
             last_time_to = periods[0].date_to.time()
         for period in periods:
-            if period.date_from.time() != last_time_from:
-                is_same_time = False
+            if period.date_from:
+                if period.date_from.time() != last_time_from:
+                    is_same_time = False
             if last_time_to and period.date_to:
                 if period.date_to.time() != last_time_to:
                     is_same_time = False
