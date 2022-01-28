@@ -196,7 +196,10 @@ def google_nav_url(obj):
     Generates a link to get directions to an event or location with google maps.
     """
     if isinstance(obj, Event):
-        location = quote(obj.location.mappable_location)
+        if obj.location:
+            location = quote(obj.location.mappable_location)
+        else:
+            location = None
     elif isinstance(obj, EventLocation):
         location = quote(obj.mappable_location)
     else:
