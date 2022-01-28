@@ -199,7 +199,7 @@ def google_nav_url(obj):
         if obj.location:
             location = quote(obj.location.mappable_location)
         else:
-            location = None
+            return ''
     elif isinstance(obj, EventLocation):
         location = quote(obj.mappable_location)
     else:
