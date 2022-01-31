@@ -313,6 +313,8 @@ class ArchiveListView(ListView):
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
+        if 'year' not in self.kwargs:
+            self.kwargs['year'] = None
         if self.kwargs['year'] is None:
             curr_year = date.today().year
             response = redirect('event_list_year', year=curr_year)
@@ -703,7 +705,7 @@ class EventPriceAutocompleteView(autocomplete.Select2QuerySetView):
         return str(item.value) + item.unit + desc
 
     def get_queryset(self):
-        if not self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated:
             return EventPrice.objects.none()
 
         qs = EventPrice.objects.all()

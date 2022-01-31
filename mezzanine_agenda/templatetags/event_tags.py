@@ -183,7 +183,7 @@ def google_calendar_url(event):
     else:
         end_date = start_date
     url = Site.objects.get(id=current_site_id()).domain + event.get_absolute_url()
-    if event.location:
+    if event.location and event.location.mappable_location:
         location = quote(event.location.mappable_location)
     else:
         location = None
@@ -195,12 +195,11 @@ def google_nav_url(obj):
     """
     Generates a link to get directions to an event or location with google maps.
     """
-    if isinstance(obj, Event):
-        if obj.location:
-            location = quote(obj.location.mappable_location)
-        else:
-            return ''
-    elif isinstance(obj, EventLocation):
+    if isinstance(obj, Event) and obj.location and obj.location.mappable_location:
+        location = quote(obj.location.mappable_location)
+    elif isinstance(obj, EventLocation) and \
+            obj.location and \
+            obj.location.mappable_location:
         location = quote(obj.mappable_location)
     else:
         return ''
@@ -216,10 +215,12 @@ def google_static_map(obj, width, height, zoom):
     """
     Generates a static google map for the event location.
     """
-    if isinstance(obj, Event):
+    if isinstance(obj, Event) and obj.location and obj.location.mappable_location:
         location = quote(obj.location.mappable_location)
         marker = quote('{:.6},{:.6}'.format(obj.location.lat, obj.location.lon))
-    elif isinstance(obj, EventLocation):
+    elif isinstance(obj, EventLocation) and \
+            obj.location and \
+            obj.location.mappable_location:
         location = quote(obj.mappable_location)
         marker = quote('{:.6},{:.6}'.format(obj.lat, obj.lon))
     else:
@@ -228,8 +229,9 @@ def google_static_map(obj, width, height, zoom):
         scale = 2
     else:
         scale = 1
-
-    url = "https://maps.googleapis.com/maps/api/staticmap?size={width}x{height}&scale={scale}&format=png&markers={marker}&sensor=false&zoom={zoom}"  # noqa: E501
+    key = settings.GOOGLE_API_KEY
+    url = "https://maps.googleapis.com/maps/api/staticmap?size={width}x{height}&scale={scale}&format=png&markers={marker}&sensor=false&zoom={zoom}&key={key}".format(**locals()).encode('utf-8')  # noqa: E501
+    url = sign_url(input_url=url, secret=settings.GOOGLE_STATIC_MAPS_API_SECRET)
     if hasattr(settings, "GOOGLE_API_KEY"):
         key = settings.GOOGLE_API_KEY
         url += "&key={key}"
