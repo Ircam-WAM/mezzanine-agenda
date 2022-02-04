@@ -23,6 +23,6 @@ setup(name='mezzanine-agenda',
         "icalendar",
         "geopy",
         "pytz",
-        "django-autocomplete-light==3.8.2",
+        "django-autocomplete-light==3.9.0rc4",
     ]
 )
