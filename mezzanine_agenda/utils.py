@@ -2,7 +2,7 @@
 import hashlib
 import hmac
 import base64
-import pandas as pd
+# import pandas as pd
 from urllib.parse import urlparse
 from collections import OrderedDict
 from django.utils.safestring import mark_safe
