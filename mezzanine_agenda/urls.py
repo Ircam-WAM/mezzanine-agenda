@@ -21,6 +21,8 @@ urlpatterns = [
         event_feed, name="event_feed_tag"),
     url(r"^tag/(?P<tag>[-a-zA-Z0-9]*)[%s]?$" % _slash, EventListView.as_view(),
         name="event_list_tag"),
+    url(r"^/tag/(?P<tag>[-a-zA-Z0-9]*)[%s]?$" % _slash, EventListView.as_view(),
+        name="event_list_tag"),
     url("^tag/(?P<tag>.*)/calendar.ics$", icalendar,
         name="icalendar_tag"),
     url("^location/(?P<location>.*)/feeds/(?P<format>.*)%s$" % _slash,
