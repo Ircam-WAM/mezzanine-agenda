@@ -66,6 +66,10 @@ urlpatterns = [
         "^(?P<slug>.*)/detail[%s]?$" % _slash, event_detail,
         name="event_detail"
     ),
+    url(
+        "^/(?P<slug>.*)/detail[%s]?$" % _slash, event_detail,
+        name="event_detail"
+    ),
     url("^$", EventListView.as_view(), name="event_list"),
     url("^(?P<slug>.*)/booking%s$" % _slash, event_booking,
         name="event_booking"),
