@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.conf import settings
 from mezzanine_agenda.models import Event, EventLocation
+from datetime import date, timedelta
 
 
 date_week = [_('MO'), _('TU'), _('WE'), _('TH'), _('FR'), _('SA'), _('SU')]
@@ -44,9 +45,14 @@ def get_events_list_days_form(locations=[]):
             for period in event.periods.all():
                 events_filtred[period.date_from.strftime('%Y-%m-%d')] = period.date_from
     # Create range of days between the earliest and oldest event
-    day_list = pd.date_range(start=events_all_date[min(events_all_date)], end=events_all_date[max(events_all_date)], normalize=True).tolist()
-    for a_day in day_list :
-        day_dict[a_day.strftime('%Y-%m-%d')] = a_day
+    curs = events_all_date[min(events_all_date)]
+    while curs <= events_all_date[max(events_all_date)]:
+        print(curs)
+        curs = curs + timedelta(days=1)
+        day_dict[curs.strftime('%Y-%m-%d')] = curs
+    # day_list = pd.date_range(start=events_all_date[min(events_all_date)], end=events_all_date[max(events_all_date)], normalize=True).tolist()
+    # for a_day in day_list :
+    #     day_dict[a_day.strftime('%Y-%m-%d')] = a_day
 
     # Determine which days
     for day_k, day_v in day_dict.items():
@@ -54,11 +60,10 @@ def get_events_list_days_form(locations=[]):
         weekend_class = ''
         if not day_k in events_filtred.keys():
             disabled = 'disabled'
-        if day_v.dayofweek == 5 or  day_v.dayofweek == 6:
+        if day_v.weekday() == 5 or day_v.weekday() == 6:
             weekend_class = 'calendar__weekend'
         label = str(day_v.day)
         events_by_day.append((day_k, {'label': label, 'disabled': disabled}))
-
 
     return events_by_day
 
