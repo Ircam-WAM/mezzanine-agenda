@@ -21,17 +21,19 @@ urlpatterns = [
         event_feed, name="event_feed_tag"),
     url(r"^tag/(?P<tag>[-a-zA-Z0-9]*)[%s]?$" % _slash, EventListView.as_view(),
         name="event_list_tag"),
+    url(r"^/tag/(?P<tag>[-a-zA-Z0-9]*)[%s]?$" % _slash, EventListView.as_view(),
+        name="event_list_tag"),
     url("^tag/(?P<tag>.*)/calendar.ics$", icalendar,
         name="icalendar_tag"),
     url("^location/(?P<location>.*)/feeds/(?P<format>.*)%s$" % _slash,
         event_feed, name="event_feed_location"),
-    url("^location/(?P<location>.*)%s$" % _slash,
+    url("^location/(?P<location>.*)[%s]?$" % _slash,
         EventListView.as_view(), name="event_list_location"),
     url("^location/(?P<location>.*)/calendar.ics$",
         icalendar, name="icalendar_location"),
     url("^author/(?P<username>.*)/feeds/(?P<format>.*)%s$" % _slash,
         event_feed, name="event_feed_author"),
-    url("^author/(?P<username>.*)%s$" % _slash,
+    url("^author/(?P<username>.*)[%s]?$" % _slash,
         EventListView.as_view(), name="event_list_author"),
     url("^author/(?P<username>.*)/calendar.ics$",
         icalendar, name="icalendar_author"),
@@ -50,7 +52,7 @@ urlpatterns = [
         event_detail, name="event_detail_month"),
     url(r"^(?P<year>\d{4})/(?P<slug>.*)%s$" % _slash,
         event_detail, name="event_detail_year"),
-    url(r"^week/(?P<year>\d{4})/(?P<week>\d{1,2})%s$" % _slash,
+    url(r"^week/(?P<year>\d{4})/(?P<week>\d{1,2})[%s]?$" % _slash,
         EventListView.as_view(), name="event_list_week"),
     url(r"^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/"
         "(?P<slug>.*)/event.ics$", icalendar_event, name="icalendar_event_day"),
@@ -61,7 +63,11 @@ urlpatterns = [
     url("^(?P<slug>.*)/detail/event.ics$", icalendar_event, name="icalendar_event"),
     url("^calendar.ics$", icalendar, name="icalendar"),
     url(
-        "^(?P<slug>.*)/detail%s$" % _slash, event_detail,
+        "^(?P<slug>.*)/detail[%s]?$" % _slash, event_detail,
+        name="event_detail"
+    ),
+    url(
+        "^/(?P<slug>.*)/detail[%s]?$" % _slash, event_detail,
         name="event_detail"
     ),
     url("^$", EventListView.as_view(), name="event_list"),
