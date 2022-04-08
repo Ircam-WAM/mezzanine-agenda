@@ -47,9 +47,8 @@ def get_events_list_days_form(locations=[]):
     # Create range of days between the earliest and oldest event
     curs = events_all_date[min(events_all_date)]
     while curs <= events_all_date[max(events_all_date)]:
-        print(curs)
-        curs = curs + timedelta(days=1)
         day_dict[curs.strftime('%Y-%m-%d')] = curs
+        curs = curs + timedelta(days=1)
     # day_list = pd.date_range(start=events_all_date[min(events_all_date)], end=events_all_date[max(events_all_date)], normalize=True).tolist()
     # for a_day in day_list :
     #     day_dict[a_day.strftime('%Y-%m-%d')] = a_day
@@ -64,6 +63,8 @@ def get_events_list_days_form(locations=[]):
             weekend_class = 'calendar__weekend'
         label = str(day_v.day)
         events_by_day.append((day_k, {'label': label, 'disabled': disabled}))
+
+    print(events_by_day)
 
     return events_by_day
 
