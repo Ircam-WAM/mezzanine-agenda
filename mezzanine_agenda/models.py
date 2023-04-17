@@ -42,6 +42,13 @@ class Event(Displayable, SubTitle, Ownable, RichText, AdminThumbMixin):
     
     parent = models.ForeignKey('Event', verbose_name=_('parent'), related_name='children', blank=True, null=True, on_delete=models.SET_NULL)
     category = models.ForeignKey('EventCategory', verbose_name=_('category'), related_name='events', blank=True, null=True, on_delete=models.SET_NULL)
+    meta_category = models.ForeignKey("organization-core.MetaCategory",
+        verbose_name=_("meta categories"),
+        related_name='%(class)ss',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
     start = models.DateTimeField(_("Start"))
     end = models.DateTimeField(_("End"), blank=True, null=True)
