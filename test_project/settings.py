@@ -1,5 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
+import os
+
 ######################
 # MEZZANINE SETTINGS #
 ######################
@@ -113,7 +115,7 @@ USE_TZ = True
 LANGUAGE_CODE = "en"
 
 # Supported languages
-_ = lambda s: s
+_ = lambda s: s  # noqa: E731
 LANGUAGES = (
     ('en', _('English')),
 )
@@ -150,7 +152,7 @@ AUTHENTICATION_BACKENDS = ("mezzanine.core.auth_backends.MezzanineBackend",)
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # The numeric mode to set newly-uploaded files to. The value should be
@@ -183,8 +185,6 @@ DATABASES = {
 #########
 # PATHS #
 #########
-
-import os
 
 # Full filesystem path to the project.
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -248,8 +248,8 @@ INSTALLED_APPS = (
     "mezzanine.pages",
     "mezzanine.galleries",
     "mezzanine.twitter",
-    #"mezzanine.accounts",
-    #"mezzanine.mobile",
+    # "mezzanine.accounts",
+    # "mezzanine.mobile",
     "mezzanine_agenda",
 )
 
@@ -345,7 +345,7 @@ DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
 # ignored in your version control system allowing for settings to be
 # defined per machine.
 try:
-    from local_settings import *
+    from local_settings import *  # noqa: F401, F403
 except ImportError:
     pass
 

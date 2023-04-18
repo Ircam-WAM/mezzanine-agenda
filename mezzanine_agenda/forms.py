@@ -1,5 +1,5 @@
 from django import forms
-from mezzanine_agenda.models import *
+from mezzanine_agenda.models import EventCategory, EventLocation, EventPrice
 from dal import autocomplete
 
 

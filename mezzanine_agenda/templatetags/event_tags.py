@@ -2,22 +2,16 @@
 
 from __future__ import unicode_literals
 
-from django import template
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Count, Q
 from django.utils import timezone
 from django.utils.http import urlquote as quote
 from django.utils.safestring import mark_safe
-from django.utils import translation
-from django.template.defaultfilters import date as _date
-from django.utils.translation import ugettext as _
 
 from mezzanine_agenda.models import Event, EventLocation
 from mezzanine.conf import settings
-from mezzanine.core.managers import SearchableQuerySet
 from mezzanine.generic.models import Keyword
-from mezzanine.pages.models import Page
 from mezzanine.template import Library
 from mezzanine.utils.models import get_user_model
 from mezzanine.utils.sites import current_site_id
@@ -26,10 +20,9 @@ from mezzanine_agenda.utils import sign_url
 import pytz
 
 from time import strptime
-from datetime import date, datetime, timedelta
-import locale
+from datetime import datetime, timedelta
 
-from mezzanine_agenda.views import next_weekday, week_day_range
+from mezzanine_agenda.views import week_day_range
 User = get_user_model()
 
 register = Library()
@@ -46,7 +39,9 @@ def event_months(*args):
         app_timezone = timezone.get_default_timezone()
     dates = Event.objects.published().values_list("start", flat=True)
     correct_timezone_dates = [timezone.make_naive(date, app_timezone) for date in dates]
-    date_dicts = [{"date": datetime(date.year, date.month, 1)} for date in correct_timezone_dates]
+    date_dicts = [
+        {"date": datetime(date.year, date.month, 1)} for date in correct_timezone_dates
+    ]
     month_dicts = []
     for date_dict in date_dicts:
         if date_dict not in month_dicts:
@@ -93,7 +88,7 @@ def recent_events(limit=5, tag=None, username=None, location=None):
     """
     events = Event.objects.published().select_related("user").order_by('-start')
     events = events.filter(end__lt=datetime.now())
-    title_or_slug = lambda s: Q(title=s) | Q(slug=s)
+    title_or_slug = lambda s: Q(title=s) | Q(slug=s)  # noqa: E731
     if tag is not None:
         try:
             tag = Keyword.objects.get(title_or_slug(tag))
@@ -131,9 +126,9 @@ def upcoming_events(limit=5, tag=None, username=None, location=None):
 
     """
     events = Event.objects.published().select_related("user").order_by('start')
-    #Get upcoming events/ongoing events
+    # Get upcoming events/ongoing events
     events = events.filter(Q(start__gt=datetime.now()) | Q(end__gt=datetime.now()))
-    title_or_slug = lambda s: Q(title=s) | Q(slug=s)
+    title_or_slug = lambda s: Q(title=s) | Q(slug=s)  # noqa: E731
     if tag is not None:
         try:
             tag = Keyword.objects.get(title_or_slug(tag))
@@ -188,11 +183,11 @@ def google_calendar_url(event):
     else:
         end_date = start_date
     url = Site.objects.get(id=current_site_id()).domain + event.get_absolute_url()
-    if event.location:
+    if event.location and event.location.mappable_location:
         location = quote(event.location.mappable_location)
     else:
         location = None
-    return "http://www.google.com/calendar/event?action=TEMPLATE&text={title}&dates={start_date}/{end_date}&sprop=website:{url}&location={location}&trp=true".format(**locals())
+    return "http://www.google.com/calendar/event?action=TEMPLATE&text={title}&dates={start_date}/{end_date}&sprop=website:{url}&location={location}&trp=true".format(**locals())  # noqa: E501
 
 
 @register.filter(is_safe=True)
@@ -200,13 +195,19 @@ def google_nav_url(obj):
     """
     Generates a link to get directions to an event or location with google maps.
     """
-    if isinstance(obj, Event):
+    if isinstance(obj, Event) and obj.location and obj.location.mappable_location:
         location = quote(obj.location.mappable_location)
-    elif isinstance(obj, EventLocation):
+    elif isinstance(obj, EventLocation) and \
+            obj.location and \
+            obj.location.mappable_location:
         location = quote(obj.mappable_location)
     else:
         return ''
-    return "https://{}/maps?daddr={}".format(settings.EVENT_GOOGLE_MAPS_DOMAIN, location)
+    return "https://{}/maps/search/?api=1&query={}&key={}".format(
+        settings.EVENT_GOOGLE_MAPS_DOMAIN,
+        location,
+        settings.GOOGLE_API_KEY
+    )
 
 
 @register.simple_tag
@@ -214,10 +215,12 @@ def google_static_map(obj, width, height, zoom):
     """
     Generates a static google map for the event location.
     """
-    if isinstance(obj, Event):
+    if isinstance(obj, Event) and obj.location and obj.location.mappable_location:
         location = quote(obj.location.mappable_location)
         marker = quote('{:.6},{:.6}'.format(obj.location.lat, obj.location.lon))
-    elif isinstance(obj, EventLocation):
+    elif isinstance(obj, EventLocation) and \
+            obj.location and \
+            obj.location.mappable_location:
         location = quote(obj.mappable_location)
         marker = quote('{:.6},{:.6}'.format(obj.lat, obj.lon))
     else:
@@ -227,10 +230,18 @@ def google_static_map(obj, width, height, zoom):
     else:
         scale = 1
     key = settings.GOOGLE_API_KEY
-    url = "https://maps.googleapis.com/maps/api/staticmap?size={width}x{height}&scale={scale}&format=png&markers={marker}&sensor=false&zoom={zoom}&key={key}".format(**locals()).encode('utf-8')
+    url = "https://maps.googleapis.com/maps/api/staticmap?size={width}x{height}&scale={scale}&format=png&markers={marker}&sensor=false&zoom={zoom}&key={key}".format(**locals()).encode('utf-8')  # noqa: E501
     url = sign_url(input_url=url, secret=settings.GOOGLE_STATIC_MAPS_API_SECRET)
+    if hasattr(settings, "GOOGLE_API_KEY"):
+        key = settings.GOOGLE_API_KEY
+        url += "&key={key}"
+    url = url.format(**locals()).encode('utf-8')
+    if hasattr(settings, "GOOGLE_STATIC_MAPS_API_SECRET"):
+        url = sign_url(input_url=url, secret=settings.GOOGLE_STATIC_MAPS_API_SECRET)
 
-    return mark_safe("<img src='{url}' width='{width}' height='{height}' />".format(**locals()))
+    return mark_safe(
+        "<img src='{url}' width='{width}' height='{height}' />".format(**locals())
+    )
 
 
 @register.simple_tag(takes_context=True)
@@ -244,7 +255,13 @@ def icalendar_url(context):
         if context.get("tag"):
             return reverse("icalendar_tag", args=(context["tag"],))
         elif context.get("year") and context.get("month"):
-            return reverse("icalendar_month", args=(context["year"], strptime(context["month"], '%B').tm_mon))
+            return reverse(
+                "icalendar_month",
+                args=(
+                    context["year"],
+                    strptime(context["month"], '%B').tm_mon
+                )
+            )
         elif context.get("year"):
             return reverse("icalendar_year", args=(context["year"],))
         elif context.get("location"):
@@ -254,15 +271,18 @@ def icalendar_url(context):
         else:
             return reverse("icalendar")
 
+
 @register.as_tag
 def all_events(*args):
     return Event.objects.all()
+
 
 def perdelta(start, end, delta):
     curr = start
     while curr < end:
         yield curr
         curr += delta
+
 
 @register.as_tag
 def all_days(*args):
@@ -274,16 +294,21 @@ def all_days(*args):
         return date_list
     return []
 
+
 @register.filter
 def events_in_day(date):
     return Event.objects.filter(start__date=date)
 
+
 @register.as_tag
 def all_weeks(*args):
-    events =  Event.objects.all()
+    events = Event.objects.all()
     first_event = events[0]
     last_event = events[len(events)-1]
-    return range(first_event.start.isocalendar()[1], last_event.start.isocalendar()[1]+1)
+    return range(
+        first_event.start.isocalendar()[1], last_event.start.isocalendar()[1]+1
+    )
+
 
 @register.filter
 def week_range(week, year):
@@ -293,6 +318,7 @@ def week_range(week, year):
 @register.filter
 def subtract(value, arg):
     return value - arg
+
 
 @register.filter
 def same_time_in_periods(periods):
@@ -311,6 +337,7 @@ def same_time_in_periods(periods):
 
     return is_same_time
 
+
 @register.filter
 def same_day_in_periods(periods):
     is_same_day = True
@@ -321,9 +348,11 @@ def same_day_in_periods(periods):
                 is_same_day = False
     return is_same_day
 
+
 @register.filter
 def tag_is_excluded(tag_id):
     return tag_id in settings.EVENT_EXCLUDE_TAG_LIST
+
 
 @register.filter
 def get_tag(tag_id):

@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.syndication.views import Feed
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.html import strip_tags
@@ -82,7 +82,7 @@ class EventsRSS(Feed):
     def locations(self):
         if not self._public:
             return []
-        return EventLocations.objects.all()
+        return EventLocation.objects.all()
 
     def item_author_name(self, item):
         return item.user.get_full_name() or item.user.username

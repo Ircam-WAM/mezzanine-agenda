@@ -11,7 +11,6 @@ them would require an application reload.
 """
 from __future__ import unicode_literals
 
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import register_setting
@@ -22,8 +21,19 @@ register_setting(
     description=_("Controls the ordering and grouping of the admin menu."),
     editable=False,
     default=(
-        (_("Content"), ("pages.Page", "blog.BlogPost", "mezzanine_agenda.Event",
-            "generic.ThreadedComment", (_("Media Library"), "fb_browse"),)),
+        (
+            _("Content"),
+            (
+                "pages.Page",
+                "blog.BlogPost",
+                "mezzanine_agenda.Event",
+                "generic.ThreadedComment",
+                (
+                    _("Media Library"),
+                    "fb_browse"
+                ),
+            )
+        ),
         (_("Site"), ("sites.Site", "redirects.Redirect", "conf.Setting")),
         (_("Users"), ("auth.User", "auth.Group",)),
     ),
@@ -39,12 +49,14 @@ register_setting(
 register_setting(
     name="EVENT_URLS_DATE_FORMAT",
     label=_("Event URL date format"),
-    description=_("A string containing the value ``year``, ``month``, or "
+    description=_(
+        "A string containing the value ``year``, ``month``, or "
         "``day``, which controls the granularity of the date portion in the "
         "URL for each event. Eg: ``year`` will define URLs in the format "
         "/events/yyyy/slug/, while ``day`` will define URLs with the format "
         "/events/yyyy/mm/dd/slug/. An empty string means the URLs will only "
-        "use the slug, and not contain any portion of the date at all."),
+        "use the slug, and not contain any portion of the date at all."
+    ),
     editable=False,
     default="",
 )
@@ -60,8 +72,10 @@ register_setting(
 register_setting(
     name="EVENT_RSS_LIMIT",
     label=_("Events RSS limit"),
-    description=_("Number of most recent events shown in the RSS feed. "
-        "Set to ``None`` to display all events in the RSS feed."),
+    description=_(
+        "Number of most recent events shown in the RSS feed. "
+        "Set to ``None`` to display all events in the RSS feed."
+    ),
     editable=False,
     default=20,
 )
@@ -82,7 +96,7 @@ register_setting(
 
 register_setting(
     name="EVENT_TIME_ZONE",
-    description="The timezone that event times are written in, if different from the timezone in settings.TIME_ZONE",
+    description="The timezone that event times are written in, if different from the timezone in settings.TIME_ZONE",  # noqa: E501
     editable=True,
     default="",
 )

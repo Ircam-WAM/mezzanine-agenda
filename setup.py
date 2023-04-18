@@ -10,7 +10,7 @@ setup(name='mezzanine-agenda',
     url='https://github.com/jpells/mezzanine-agenda',
     packages=find_packages(),
     include_package_data=True,
-    classifiers = [
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
@@ -20,9 +20,9 @@ setup(name='mezzanine-agenda',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=[
-        "icalendar",
-        "geopy",
-        "pytz",
+        "icalendar==4.0.3",
+        "geopy==1.17.0",
+        "pytz>=2018.7",
         "django-autocomplete-light==3.9.0rc4",
     ]
 )
