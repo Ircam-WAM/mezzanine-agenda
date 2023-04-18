@@ -378,17 +378,11 @@ class EventLocation(TitledSlugged):
                 .replace("\n", " ")\
                 .replace('\r', ' ') + ", " + self.postal_code + " " + self.city
 
-<<<<<<< HEAD
-        if self.mappable_location and not (self.lat and self.lon): #location should always override lat/long if set
-
-            g = GoogleMaps(api_key=settings.GOOGLE_API_KEY, domain=settings.EVENT_GOOGLE_MAPS_DOMAIN)
-=======
         if self.mappable_location and not (self.lat and self.lon):  # location should always override lat/long if set  # noqa: E501
             g = GoogleMaps(
                 api_key=settings.GOOGLE_API_KEY,
                 domain=settings.EVENT_GOOGLE_MAPS_DOMAIN
             )
->>>>>>> 7e15a9a
             try:
                 res = g.geocode(self.mappable_location)
                 mappable_location = res.address
@@ -402,13 +396,10 @@ class EventLocation(TitledSlugged):
             self.mappable_location = mappable_location
             self.lat = lat
             self.lon = lon
-<<<<<<< HEAD
             self.place_id = place_id
-=======
             print("self.lat", self.lat)
             print("self.lon", self.lon)
             print("self.mappable_location", self.mappable_location)
->>>>>>> 7e15a9a
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -418,11 +409,7 @@ class EventLocation(TitledSlugged):
         if self.room:
             return str(self.title + " - " + self.room)
         else:
-<<<<<<< HEAD
             return str(self.title)
-=======
-            return self.title
->>>>>>> 7e15a9a
 
     def get_absolute_url(self):
         return reverse("event_list_location", kwargs={"location": self.slug})
