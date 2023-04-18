@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.conf.urls import include, url
 
 from mezzanine.conf import settings
 from mezzanine_agenda.views import *
 # Trailing slash for urlpatterns based on setup.
 _slash = "/" if settings.APPEND_SLASH else ""
-
 
 # Agenda patterns.
 urlpatterns = [
@@ -74,3 +73,4 @@ urlpatterns = [
     url("^event-price-autocomplete$",
         EventPriceAutocompleteView.as_view(), name="event-price-autocomplete"),
 ]
+
