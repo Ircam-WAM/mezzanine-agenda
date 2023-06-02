@@ -72,7 +72,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
         on_delete=models.SET_NULL
     )
     meta_category = models.ForeignKey("organization_core.MetaCategory",
-        verbose_name=_("meta categories"),
+        verbose_name=_("category"),
         related_name='%(class)ss',
         blank=True,
         null=True,
