@@ -78,7 +78,12 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
         null=True,
         on_delete=models.SET_NULL
     )
-
+    topics = models.ManyToManyField(
+        "organization_projects.ProjectTopic",
+        verbose_name=_("topics"),
+        related_name="%(class)ss",
+        blank=True
+        )
     start = models.DateTimeField(_("Start"))
     end = models.DateTimeField(_("End"), blank=True, null=True)
     date_text = models.CharField(_('Date text'), max_length=512, blank=True, null=True)
