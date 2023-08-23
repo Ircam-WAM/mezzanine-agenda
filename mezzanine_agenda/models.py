@@ -23,7 +23,7 @@ from mezzanine.utils.models import AdminThumbMixin
 from mezzanine.utils.sites import current_site_id
 from mezzanine.utils.models import base_concrete_model
 
-from organization.core.models import TitledSlugged
+from organization.core.models import TitledSlugged, Featured
 
 
 ALIGNMENT_CHOICES = (
@@ -50,7 +50,7 @@ class SubTitle(models.Model):
         abstract = True
 
 
-class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin):
+class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin, Featured):
     """
     An event.
     """
