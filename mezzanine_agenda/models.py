@@ -134,7 +134,7 @@ class Event(Displayable, SubTitle, TeamOwnable, RichText, AdminThumbMixin, Featu
     class Meta:
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
-        ordering = ("rank", "start",)
+        ordering = ["is_featured", "rank", "start", "-updated", "title", ]
         permissions = TeamOwnable.Meta.permissions
 
     def clean(self):
